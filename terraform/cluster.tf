@@ -21,7 +21,7 @@ resource "aws_subnet" "kubernetes" {
 
 resource "aws_instance" "etcd" {
     count = 3
-    ami = "ami-1967056a" // Unbuntu 16.04 LTS HVM, EBS-SSD
+    ami = "	ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
     instance_type = "t2.micro"
 
     subnet_id = "${aws_subnet.kubernetes.id}"
