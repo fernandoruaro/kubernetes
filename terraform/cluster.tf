@@ -31,6 +31,9 @@ resource "aws_instance" "etcd" {
     availability_zone = "us-west-2a"
     vpc_security_group_ids = ["${aws_security_group.kubernetes.id}"]
     key_name = "${aws_key_pair.kubernetes.key_name}"
+    tags {
+        kubernetes_role = "etcd"
+    }
 }
 
 
