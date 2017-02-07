@@ -1,5 +1,5 @@
 variable "region" { default="us-west-2" }
-
+provider "aws" { region = "${var.region}" }
 
 resource "aws_key_pair" "deployer" {
   key_name = "kubernetes_tf" 
