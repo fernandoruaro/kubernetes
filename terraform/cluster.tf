@@ -94,42 +94,6 @@ resource "aws_security_group" "kubernetes_api" {
 }
 
 
-resource "aws_security_group" "kubernetes_extra" {
-  name = "kubernetes_extra"
-
-  # Allow all outbound
-  egress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # Allow all traffic from control host IP
-  ingress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    cidr_blocks = ["${var.control_cidr}"]
-  }
-}
-
-resource "aws_instance" "etcd_extra" {
-    count = 1
-    ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
-    instance_type = "t2.micro"
-
-    associate_public_ip_address = true
-
-    availability_zone = "us-west-2a"
-    vpc_security_group_ids = ["${aws_security_group.kubernetes_extra.id}"]
-    key_name = "${aws_key_pair.kubernetes.key_name}"
-    tags {
-        kubernetes_role = "etcd"
-    }
-}
-
-
 resource "aws_internet_gateway" "gw" {
   vpc_id = "${aws_vpc.kubernetes.id}"
 }
