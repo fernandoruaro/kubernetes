@@ -1,6 +1,5 @@
 - hosts: all
   user: ubuntu
-  private_key_file: ~/.ssh/kubernetes_tf.pem
   gather_facts: false
   tasks:
     - name: Install Python
