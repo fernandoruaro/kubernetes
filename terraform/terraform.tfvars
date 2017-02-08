@@ -1,2 +1,2 @@
-control_cidr = "123.45.67.89/32"
+control_cidr = "54.202.45.150/32"
 region = "us-west-2"

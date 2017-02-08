@@ -1,5 +1,4 @@
 - hosts: all
-  user: ubuntu
   gather_facts: false
   tasks:
     - name: Install Python

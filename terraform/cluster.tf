@@ -1,5 +1,3 @@
-variable "region" { default="us-west-2" }
-variable "control_cidr" { default="54.202.45.150/32" }
 provider "aws" { region = "${var.region}" }
 
 resource "aws_key_pair" "kubernetes" {
