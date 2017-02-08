@@ -97,7 +97,7 @@ resource "aws_security_group" "kubernetes_api" {
 
 
 resource "aws_security_group" "kubernetes_extra" {
-  name = "kubernetes"
+  name = "kubernetes_extra"
 
   # Allow all outbound
   egress {
