@@ -29,7 +29,7 @@ resource "aws_instance" "etcd" {
     ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
     instance_type = "t2.micro"
 
-    subnet_id = "${aws_subnet.kubernetes.*.id}"
+    subnet_id = "${element(aws_subnet.kubernetes.*.id, count.index)}"
     private_ip = "10.43.${count.index}.1${count.index}"
     associate_public_ip_address = true
     availability_zone = "${element(var.azs, count.index)}"
