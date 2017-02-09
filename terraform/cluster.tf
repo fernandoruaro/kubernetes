@@ -1,6 +1,14 @@
 variable "region" { default="us-west-2" }
 variable "control_cidr" { default="54.202.45.150/32" }
 provider "aws" { region = "${var.region}" }
+variable "azs" {
+  type = "list"
+  default = ["${var.region}a", "${var.region}b", "${var.region}c"]
+}
+variable "azs" {
+  type = "list"
+  default = ["${var.region}a", "${var.region}b", "${var.region}c"]
+}
 
 resource "aws_key_pair" "kubernetes" {
   key_name = "kubernetes_tf" 
@@ -15,8 +23,8 @@ resource "aws_vpc" "kubernetes" {
 
 resource "aws_subnet" "kubernetes" {
   vpc_id = "${aws_vpc.kubernetes.id}"
-  cidr_block = "10.43.0.0/16"
-  availability_zone = "us-west-2a"
+  cidr_block = "10.43.${count.index}.0/16"
+  availability_zone = "${element(var.azs, count.index)}"
 }
 
 resource "aws_instance" "etcd" {
@@ -25,10 +33,9 @@ resource "aws_instance" "etcd" {
     instance_type = "t2.micro"
 
     subnet_id = "${aws_subnet.kubernetes.id}"
-    private_ip = "${cidrhost("10.43.0.0/16", 10 + count.index)}"
+    private_ip = "10.43.${count.index}.1${count.index}/16"
     associate_public_ip_address = true
-
-    availability_zone = "us-west-2a"
+    availability_zone = "${element(var.azs, count.index)}"
     vpc_security_group_ids = ["${aws_security_group.kubernetes.id}"]
     key_name = "${aws_key_pair.kubernetes.key_name}"
     tags {
@@ -109,6 +116,7 @@ resource "aws_route_table" "kubernetes" {
 }
 
 resource "aws_route_table_association" "kubernetes" {
-  subnet_id = "${aws_subnet.kubernetes.id}"
+  subnet_id = "${aws_subnet.kubernetes.*.id}"
   route_table_id = "${aws_route_table.kubernetes.id}"
 }
+
