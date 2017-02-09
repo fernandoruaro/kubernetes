@@ -114,7 +114,8 @@ resource "aws_route_table" "kubernetes" {
 }
 
 resource "aws_route_table_association" "kubernetes" {
-  subnet_id = "${join(",",aws_subnet.kubernetes.*.id)}"
+  count = 3
+  subnet_id = "${element(aws_subnet.kubernetes.*.id, count.index)}"
   route_table_id = "${aws_route_table.kubernetes.id}"
 }
 
