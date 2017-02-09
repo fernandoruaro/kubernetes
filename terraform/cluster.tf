@@ -20,7 +20,7 @@ resource "aws_vpc" "kubernetes" {
 
 resource "aws_subnet" "kubernetes" {
   vpc_id = "${aws_vpc.kubernetes.id}"
-  cidr_block = "10.43.${count.index}.0/16"
+  cidr_block = "10.43.${count.index}.0/24"
   availability_zone = "${element(var.azs, count.index)}"
 }
 
