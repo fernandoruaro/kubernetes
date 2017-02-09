@@ -37,6 +37,7 @@ resource "aws_instance" "etcd" {
     vpc_security_group_ids = ["${aws_security_group.kubernetes.id}"]
     key_name = "${aws_key_pair.kubernetes.key_name}"
     tags {
+        ansible_managed = "yes",
         kubernetes_role = "etcd"
     }
 }

@@ -1,12 +1,4 @@
-[tag_ansibleNodeType_etcd]
-[tag_ansibleNodeType_worker]
-[tag_ansibleNodeType_controller]
+[tag_kubernetes_role_etcd]
 
 [etcd:children]
 tag_ansibleNodeType_etcd
-
-[worker:children]
-tag_ansibleNodeType_worker
-
-[controller:children]
-tag_ansibleNodeType_controller

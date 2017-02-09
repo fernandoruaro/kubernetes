@@ -1,4 +1,4 @@
-- hosts: all
+- hosts: etcd
   gather_facts: false
   tasks:
     - name: Install Python
