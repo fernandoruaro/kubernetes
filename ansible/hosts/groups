@@ -1,4 +1,4 @@
 [tag_kubernetes_role_etcd]
 
 [etcd:children]
-tag_ansibleNodeType_etcd
+tag_kubernetes_role_etcd
