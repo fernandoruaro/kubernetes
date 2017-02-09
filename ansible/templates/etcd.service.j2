@@ -11,12 +11,12 @@ ExecStart=/usr/bin/etcd --name {{ inventory_hostname }} \
   --peer-key-file=/etc/etcd/kubernetes-key.pem \
   --trusted-ca-file=/etc/etcd/ca.pem \
   --peer-trusted-ca-file=/etc/etcd/ca.pem \
-  --initial-advertise-peer-urls {% for node in groups['all'] %}{{ node }}=https://{{ node.ansible_eth0.ipv4.address }}:2380{% if not loop.last %},{% endif %}{% endfor %} \
-  --listen-peer-urls{% for node in groups['all'] %}{{ node }}=https://{{ node.ansible_eth0.ipv4.address }}:2380{% if not loop.last %},{% endif %}{% endfor %} \
-  --listen-client-urls {% for node in groups['all'] %}{{ node }}=https://{{ node.ansible_eth0.ipv4.address }}:2379{% if not loop.last %},{% endif %}{% endfor %} \
-  --advertise-client-urls {% for node in groups['all'] %}{{ node }}=https://{{ node.ansible_eth0.ipv4.address }}:2379{% if not loop.last %},{% endif %}{% endfor %} \
+  --initial-advertise-peer-urls {% for node in groups['all'] %}https://{{ hostvars[node].ec2_private_ip_address }}:2380{% if not loop.last %},{% endif %}{% endfor %} \
+  --listen-peer-urls{% for node in groups['all'] %}https://{{ hostvars[node].ec2_private_ip_address }}:2380{% if not loop.last %},{% endif %}{% endfor %} \
+  --listen-client-urls {% for node in groups['all'] %}{{ node }}=https://{{ hostvars[node].ec2_private_ip_address }}:2379{% if not loop.last %},{% endif %}{% endfor %} \
+  --advertise-client-urls {% for node in groups['all'] %}{{ node }}=https://{{ hostvars[node].ec2_private_ip_address }}:2379{% if not loop.last %},{% endif %}{% endfor %} \
   --initial-cluster-token etcd-cluster-0 \
-  --initial-cluster {% for node in groups['all'] %}{{ node }}=https://{{ node.ansible_eth0.ipv4.address }}:2380{% if not loop.last %},{% endif %}{% endfor %} \
+  --initial-cluster {% for node in groups['all'] %}{{ node }}=https://{{ hostvars[node].ec2_private_ip_address }}:2380{% if not loop.last %},{% endif %}{% endfor %} \
   --initial-cluster-state new \
   --data-dir=/var/lib/etcd
 Restart=on-failure
@@ -24,3 +24,6 @@ RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
+
+
+#ansible all -m template -a "src=tempalte/etcd.service.j2 dest=./test.txt"
