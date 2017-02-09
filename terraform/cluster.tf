@@ -30,7 +30,7 @@ resource "aws_instance" "etcd" {
     instance_type = "t2.micro"
 
     subnet_id = "${aws_subnet.kubernetes.id}"
-    private_ip = "10.43.${count.index}.1${count.index}/16"
+    private_ip = "10.43.${count.index}.1${count.index}"
     associate_public_ip_address = true
     availability_zone = "${element(var.azs, count.index)}"
     vpc_security_group_ids = ["${aws_security_group.kubernetes.id}"]
