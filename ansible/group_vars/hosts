@@ -1,3 +1,4 @@
+[tag_ansible_managed_yes]
 [tag_kubernetes_role_etcd]
 
 [etcd:children]
