@@ -1,14 +1,11 @@
 variable "region" { default="us-west-2" }
+variable "azs" {
+  type = "list"
+  default = ["us-west-2a", "us-west-2b", "us-west-2c"]
+}
+
 variable "control_cidr" { default="54.202.45.150/32" }
 provider "aws" { region = "${var.region}" }
-variable "azs" {
-  type = "list"
-  default = ["${var.region}a", "${var.region}b", "${var.region}c"]
-}
-variable "azs" {
-  type = "list"
-  default = ["${var.region}a", "${var.region}b", "${var.region}c"]
-}
 
 resource "aws_key_pair" "kubernetes" {
   key_name = "kubernetes_tf" 
@@ -116,7 +113,7 @@ resource "aws_route_table" "kubernetes" {
 }
 
 resource "aws_route_table_association" "kubernetes" {
-  subnet_id = "${aws_subnet.kubernetes.*.id}"
+  subnet_id = "${join(",",aws_subnet.kubernetes.*.id)}"
   route_table_id = "${aws_route_table.kubernetes.id}"
 }
 
