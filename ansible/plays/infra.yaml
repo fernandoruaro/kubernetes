@@ -9,7 +9,7 @@
       become: true
     - name: Download etcd binaries
       get_url:
-        url: "https://github.com/coreos/etcd/releases/download/v3.0.1/etcd-v3.0.-linux-amd64.tar.gz"
+        url: "https://github.com/coreos/etcd/releases/download/v3.0.1/etcd-v3.0.1-linux-amd64.tar.gz"
         dest: "/usr/local/src"
       become: true
     - name: Unpack etcd binaries
