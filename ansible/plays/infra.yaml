@@ -38,7 +38,7 @@
 
     - name: Add etcd systemd unit
       template:
-        src: ./templates/etcd.service.j2
+        src: ../templates/etcd.service.j2
         dest: /etc/systemd/system/etcd.service
         mode: 700
       become: true
