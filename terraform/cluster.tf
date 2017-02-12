@@ -120,3 +120,48 @@ resource "aws_route_table_association" "kubernetes" {
   route_table_id = "${aws_route_table.kubernetes.id}"
 }
 
+
+
+resource "aws_alb" "etcd" {
+  name            = "tf-etcd-alb"
+  internal        = false
+  security_groups = ["${aws_security_group.kubernetes.id}"]
+  subnets         = ["${aws_subnet.kubernetes.*.id}"]
+}
+
+resource "aws_alb_target_group" "etcd_client" {
+  name     = "tf-etcd-client"
+  port     = 2379
+  protocol = "HTTP"
+  vpc_id   = "${aws_vpc.kubernetes.id}"
+}
+
+
+resource "aws_alb_target_group" "etcd_peer" {
+  name     = "tf-etcd-peer"
+  port     = 2380
+  protocol = "HTTP"
+  vpc_id   = "${aws_vpc.kubernetes.id}"
+}
+
+resource "aws_alb_listener" "etcd_client" {
+  load_balancer_arn = "${aws_alb.etcd.id}"
+  port              = "2379"
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = "${aws_alb_target_group.etcd_client.id}"
+    type             = "forward"
+  }
+}
+
+resource "aws_alb_listener" "etcd_peer" {
+  load_balancer_arn = "${aws_alb.etcd.id}"
+  port              = "2380"
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = "${aws_alb_target_group.etcd_peer.id}"
+    type             = "forward"
+  }
+}
