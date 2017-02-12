@@ -14,7 +14,7 @@
     group: root
     mode: 0755
   with_items:
-    - etcd-
+    - etcd
     - etcdctl
   become: true
 
