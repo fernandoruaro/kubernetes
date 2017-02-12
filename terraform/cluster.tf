@@ -185,3 +185,16 @@ resource "aws_alb_target_group_attachment" "etcd_peer" {
   target_id = "${element(aws_instance.etcd.*.id, count.index)}"
   port = 2380
 }
+
+
+
+data "aws_route53_zone" "zone" {
+  name = "aws.encorehq.com"
+}
+
+resource "aws_route53_record" "etcd" {
+  zone_id = "${data.aws_route53_zone.zone.zone_id}"
+  name = "etcd.${data.aws_route53_zone.zone.name}"
+  type = "CNAME"
+  records = ["${aws_alb.etcd.dns_name}"]
+}
