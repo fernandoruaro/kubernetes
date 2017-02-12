@@ -5,10 +5,10 @@ Documentation=http://github.com/coreos
 
 [Service]
 ExecStart=/usr/bin/etcd --name {{ inventory_hostname }} \
-  --initial-advertise-peer-urls {% for node in groups['all'] %}http://{{ hostvars[node].ec2_private_ip_address }}:2380{% if not loop.last %},{% endif %}{% endfor %} \
+  --initial-advertise-peer-urls http://{{ hostvars[node].ec2_private_ip_address }}:2380 \
   --listen-peer-urls http://{{ hostvars[inventory_hostname].ec2_private_ip_address }}:2380,http://127.0.0.1:2380 \
   --listen-client-urls http://{{ hostvars[inventory_hostname].ec2_private_ip_address }}:2379,http://127.0.0.1:2379 \
-  --advertise-client-urls {% for node in groups['all'] %}http://{{ hostvars[node].ec2_private_ip_address }}:2379{% if not loop.last %},{% endif %}{% endfor %} \
+  --advertise-client-urls http://{{ hostvars[node].ec2_private_ip_address }}:2379 \
   --initial-cluster-token etcd-cluster-0 \
   --initial-cluster {% for node in groups['all'] %}{{ node }}=http://{{ hostvars[node].ec2_private_ip_address }}:2380{% if not loop.last %},{% endif %}{% endfor %} \
   --initial-cluster-state new \
