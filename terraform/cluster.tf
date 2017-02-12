@@ -134,6 +134,9 @@ resource "aws_alb_target_group" "etcd_client" {
   port     = 2379
   protocol = "HTTP"
   vpc_id   = "${aws_vpc.kubernetes.id}"
+  health_check {
+    path   = "/health"
+  }
 }
 
 
@@ -142,6 +145,10 @@ resource "aws_alb_target_group" "etcd_peer" {
   port     = 2380
   protocol = "HTTP"
   vpc_id   = "${aws_vpc.kubernetes.id}"
+  health_check {
+    path   = "/health"
+    port   = 2379
+  }
 }
 
 resource "aws_alb_listener" "etcd_client" {
