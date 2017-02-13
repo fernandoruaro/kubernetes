@@ -262,7 +262,7 @@ resource "aws_alb" "controller" {
 }
 
 resource "aws_alb_target_group" "controller" {
-  name     = "tf-etcd-peer"
+  name     = "tf-controller"
   port     = 6443
   protocol = "HTTP"
   vpc_id   = "${aws_vpc.kubernetes.id}"
@@ -285,7 +285,7 @@ resource "aws_alb_listener" "controller" {
 
 resource "aws_alb_target_group_attachment" "controller" {
   count = 3
-  target_group_arn = "${aws_alb_target_group.etcd_peer.arn}"
+  target_group_arn = "${aws_alb_target_group.controller.arn}"
   target_id = "${element(aws_instance.controller.*.id, count.index)}"
   port = 6443
 }
