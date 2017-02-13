@@ -10,3 +10,6 @@
 - hosts: controller
   roles:
     - controller
+- hosts: worker
+  roles:
+    - worker
