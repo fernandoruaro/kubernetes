@@ -236,7 +236,7 @@ resource "aws_instance" "controller" {
 
     iam_instance_profile = "${aws_iam_instance_profile.kubernetes.id}"
 
-    subnet_id = "${aws_subnet.kubernetes.id}"
+    subnet_id = "${element(aws_subnet.kubernetes.*.id, count.index)}"
     associate_public_ip_address = true # Instances have public, dynamic IP
     source_dest_check = false # TODO Required??
 
