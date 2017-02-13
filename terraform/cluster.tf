@@ -289,3 +289,68 @@ resource "aws_alb_target_group_attachment" "controller" {
   target_id = "${element(aws_instance.controller.*.id, count.index)}"
   port = 6443
 }
+
+
+
+#######
+# IAM 
+#######
+
+
+resource "aws_iam_role" "kubernetes" {
+  name = "tf-kubernetes"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+# Role policy
+resource "aws_iam_role_policy" "kubernetes" {
+  name = "tf-kubernetes"
+  role = "${aws_iam_role.kubernetes.id}"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action" : ["ec2:*"],
+      "Effect": "Allow",
+      "Resource": ["*"]
+    },
+    {
+      "Action" : ["elasticloadbalancing:*"],
+      "Effect": "Allow",
+      "Resource": ["*"]
+    },
+    {
+      "Action": "route53:*",
+      "Effect": "Allow",
+      "Resource": ["*"]
+    },
+    {
+      "Action": "ecr:*",
+      "Effect": "Allow",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+
+# IAM Instance Profile for Controller
+resource  "aws_iam_instance_profile" "kubernetes" {
+ name = "tf-kubernetes"
+ roles = ["${aws_iam_role.kubernetes.name}"]
+}
