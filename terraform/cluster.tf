@@ -3,7 +3,7 @@ variable "azs" {
   type = "list"
   default = ["us-west-2a", "us-west-2b", "us-west-2c"]
 }
-
+variable "controller_instance_type" { default="t2.micro" }
 variable "control_cidr" { default="54.202.45.150/32" }
 provider "aws" { region = "${var.region}" }
 
@@ -121,6 +121,9 @@ resource "aws_route_table_association" "kubernetes" {
 
 
 
+############
+# ETCD ALB
+############
 resource "aws_alb" "etcd" {
   name            = "tf-etcd-alb"
   internal        = false
@@ -128,6 +131,10 @@ resource "aws_alb" "etcd" {
   subnets         = ["${aws_subnet.kubernetes.*.id}"]
 }
 
+
+############
+# ETCD CLIENT
+############
 resource "aws_alb_target_group" "etcd_client" {
   name     = "tf-etcd-client"
   port     = 2379
@@ -135,18 +142,6 @@ resource "aws_alb_target_group" "etcd_client" {
   vpc_id   = "${aws_vpc.kubernetes.id}"
   health_check {
     path   = "/health"
-  }
-}
-
-
-resource "aws_alb_target_group" "etcd_peer" {
-  name     = "tf-etcd-peer"
-  port     = 2380
-  protocol = "HTTP"
-  vpc_id   = "${aws_vpc.kubernetes.id}"
-  health_check {
-    path   = "/health"
-    port   = 2379
   }
 }
 
@@ -161,6 +156,28 @@ resource "aws_alb_listener" "etcd_client" {
   }
 }
 
+resource "aws_alb_target_group_attachment" "etcd_client" {
+  count = 3
+  target_group_arn = "${aws_alb_target_group.etcd_client.arn}"
+  target_id = "${element(aws_instance.etcd.*.id, count.index)}"
+  port = 2379
+}
+
+
+############
+# ETCD PEER
+############
+resource "aws_alb_target_group" "etcd_peer" {
+  name     = "tf-etcd-peer"
+  port     = 2380
+  protocol = "HTTP"
+  vpc_id   = "${aws_vpc.kubernetes.id}"
+  health_check {
+    path   = "/health"
+    port   = 2379
+  }
+}
+
 resource "aws_alb_listener" "etcd_peer" {
   load_balancer_arn = "${aws_alb.etcd.id}"
   port              = "2380"
@@ -172,13 +189,6 @@ resource "aws_alb_listener" "etcd_peer" {
   }
 }
 
-resource "aws_alb_target_group_attachment" "etcd_client" {
-  count = 3
-  target_group_arn = "${aws_alb_target_group.etcd_client.arn}"
-  target_id = "${element(aws_instance.etcd.*.id, count.index)}"
-  port = 2379
-}
-
 resource "aws_alb_target_group_attachment" "etcd_peer" {
   count = 3
   target_group_arn = "${aws_alb_target_group.etcd_peer.arn}"
@@ -186,15 +196,96 @@ resource "aws_alb_target_group_attachment" "etcd_peer" {
   port = 2380
 }
 
-
-
-data "aws_route53_zone" "zone" {
+###############
+# ROUTE 53
+###############
+resource "aws_route53_zone" "zone" {
   name = "aws.encorehq.com"
 }
 
 resource "aws_route53_record" "etcd" {
-  zone_id = "${data.aws_route53_zone.zone.zone_id}"
-  name = "etcd.${data.aws_route53_zone.zone.name}"
+  zone_id = "${aws_route53_zone.zone.zone_id}"
+  name = "etcd.${aws_route53_zone.zone.name}"
   type = "CNAME"
   records = ["${aws_alb.etcd.dns_name}"]
+  ttl = 300
+}
+
+
+variable amis {
+  description = "Default AMIs to use for nodes depending on the region"
+  type = "map"
+  default = {
+    ap-northeast-1 = "ami-0567c164"
+    ap-southeast-1 = "ami-a1288ec2"
+    cn-north-1 = "ami-d9f226b4"
+    eu-central-1 = "ami-8504fdea"
+    eu-west-1 = "ami-0d77397e"
+    sa-east-1 = "ami-e93da085"
+    us-east-1 = "ami-40d28157"
+    us-west-1 = "ami-6e165d0e"
+    us-west-2 = "ami-a9d276c9"
+  }
+}
+
+resource "aws_instance" "controller" {
+
+    count = 3
+    ami = "${lookup(var.amis, var.region)}"
+    instance_type = "${var.controller_instance_type}"
+
+    iam_instance_profile = "${aws_iam_instance_profile.kubernetes.id}"
+
+    subnet_id = "${aws_subnet.kubernetes.id}"
+    associate_public_ip_address = true # Instances have public, dynamic IP
+    source_dest_check = false # TODO Required??
+
+    availability_zone = "${element(var.azs, count.index)}"
+    vpc_security_group_ids = ["${aws_security_group.kubernetes.id}"]
+    key_name = "${aws_key_pair.kubernetes.key_name}"
+    
+    tags {
+      ansible_managed = "yes",
+      kubernetes_role = "controller"
+    }
+}
+
+
+############
+# KUBE CONTROLLER ALB
+############
+resource "aws_alb" "controller" {
+  name            = "tf-controller-alb"
+  internal        = false
+  security_groups = ["${aws_security_group.kubernetes_api.id}"]
+  subnets         = ["${aws_subnet.kubernetes.*.id}"]
+}
+
+resource "aws_alb_target_group" "controller" {
+  name     = "tf-etcd-peer"
+  port     = 6443
+  protocol = "HTTP"
+  vpc_id   = "${aws_vpc.kubernetes.id}"
+  health_check {
+    path   = "/healthz"
+    port   = 8080
+  }
+}
+
+resource "aws_alb_listener" "controller" {
+  load_balancer_arn = "${aws_alb.controller.id}"
+  port              = "6443"
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = "${aws_alb_target_group.controller.id}"
+    type             = "forward"
+  }
+}
+
+resource "aws_alb_target_group_attachment" "controller" {
+  count = 3
+  target_group_arn = "${aws_alb_target_group.etcd_peer.arn}"
+  target_id = "${element(aws_instance.controller.*.id, count.index)}"
+  port = 6443
 }

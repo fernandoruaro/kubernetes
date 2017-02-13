@@ -1,5 +1,9 @@
 [tag_ansible_managed_yes]
 [tag_kubernetes_role_etcd]
+[tag_kubernetes_role_controller]
 
 [etcd:children]
 tag_kubernetes_role_etcd
+
+[controller:children]
+tag_kubernetes_role_controller
