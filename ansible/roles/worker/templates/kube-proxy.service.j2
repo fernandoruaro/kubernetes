@@ -4,7 +4,7 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 ExecStart=/usr/bin/kube-proxy \
-  --master=https://{{ hostvars['controller0'].ansible_eth0.ipv4.address }}:6443 \
+  --master=http://tf-controller-alb-290035360.us-west-2.elb.amazonaws.com:6443 \
   --kubeconfig=/var/lib/kubelet/kubeconfig \
   --proxy-mode=iptables \
   --v=2
