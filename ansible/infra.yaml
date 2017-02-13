@@ -7,3 +7,6 @@
 - hosts: etcd
   roles:
     - etcd
+- hosts: controller
+  roles:
+    - controller
