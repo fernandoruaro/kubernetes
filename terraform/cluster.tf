@@ -231,7 +231,9 @@ variable amis {
 resource "aws_instance" "controller" {
 
     count = 3
-    ami = "${lookup(var.amis, var.region)}"
+    ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
+    #ami = "${lookup(var.amis, var.region)}"
+    
     instance_type = "${var.controller_instance_type}"
 
     iam_instance_profile = "${aws_iam_instance_profile.kubernetes.id}"
