@@ -4,16 +4,6 @@
     - name: Install Python
       raw: "apt-get -y -q install python"
       become: true
-    - name: Create etcd config dir
-      file: path=/etc/etcd state=directory
-      become: true
-    - name: Download etcd binaries
-      get_url:
-        url: "https://github.com/coreos/etcd/releases/download/v3.0.1/etcd-v3.0.1-linux-amd64.tar.gz"
-        dest: "/usr/local/src"
-      become: true
-
-
 - hosts: etcd
   roles:
     - etcd
