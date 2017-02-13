@@ -13,7 +13,9 @@
     - kubectl
   become: true
 
-  
+- name: Create kubernetes lib directory
+  file: path=/var/lib/kubernetes state=directory mode=0755
+
 - name: Copy Authentication and Authorisation files
   copy:
     src: "{{ item }}"
