@@ -17,7 +17,7 @@
 - name: Copy Authentication and Authorisation files
   copy:
     src: "{{ item }}"
-    dest: /var/lib/kubernetes
+    dest: /var/lib/kubernetes/{{ item }}
     owner: root
     group: root
     mode: 0644
