@@ -7,7 +7,7 @@ Requires=docker.service
 [Service]
 ExecStart=/usr/bin/kubelet \
   --allow-privileged=true \
-  --api-servers={{ kubernetes_master_elb }} \
+  --api-servers=http://{{ kubernetes_master_url }}:6443 \
   --cloud-provider= \
   --cluster-dns={{ kubernetes_cluster_dns }} \
   --cluster-domain=cluster.local \
