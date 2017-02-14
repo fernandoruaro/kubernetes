@@ -127,7 +127,7 @@ resource "aws_route_table_association" "kubernetes" {
 ############
 resource "aws_alb" "etcd" {
   name            = "tf-etcd-alb"
-  internal        = false
+  internal        = true
   security_groups = ["${aws_security_group.kubernetes.id}"]
   subnets         = ["${aws_subnet.kubernetes.*.id}"]
 }
@@ -259,7 +259,7 @@ resource "aws_instance" "controller" {
 ############
 resource "aws_alb" "controller" {
   name            = "tf-controller-alb"
-  internal        = false
+  internal        = true
   security_groups = ["${aws_security_group.kubernetes_api.id}"]
   subnets         = ["${aws_subnet.kubernetes.*.id}"]
 }
