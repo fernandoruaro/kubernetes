@@ -260,7 +260,7 @@ resource "aws_instance" "controller" {
 resource "aws_alb" "controller" {
   name            = "tf-controller-alb"
   internal        = true
-  security_groups = ["${aws_security_group.kubernetes_api.id}"]
+  security_groups = ["${aws_security_group.kubernetes_api.id}","${aws_security_group.kubernetes.id}"]
   subnets         = ["${aws_subnet.kubernetes.*.id}"]
 }
 
