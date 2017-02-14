@@ -71,5 +71,3 @@
       - "'scheduler            Healthy' in cmd_result.stdout"
       - "'controller-manager   Healthy' in cmd_result.stdout"
       - "'etcd-0               Healthy' in cmd_result.stdout"
-      - "'etcd-1               Healthy' in cmd_result.stdout"
-      - "'etcd-2               Healthy' in cmd_result.stdout"
