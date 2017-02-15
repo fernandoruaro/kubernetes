@@ -6,6 +6,9 @@ variable "azs" {
 variable "controller_instance_type" { default="t2.micro" }
 variable "worker_instance_type" { default="t2.micro" }
 variable "control_cidr" { default="54.202.45.150/32" }
+variable "etcd_count" { default=3 }
+variable "controller_count" { default=3 }
+variable "worker_count" { default=3 }
 provider "aws" { region = "${var.region}" }
 
 resource "aws_key_pair" "kubernetes" {
@@ -20,14 +23,14 @@ resource "aws_vpc" "kubernetes" {
 }
 
 resource "aws_subnet" "kubernetes" {
-  count = 3
+  count = "${length(var.azs)}"
   vpc_id = "${aws_vpc.kubernetes.id}"
   cidr_block = "${cidrsubnet(aws_vpc.kubernetes.cidr_block, 4, count.index)}"
   availability_zone = "${element(var.azs, count.index)}"
 }
 
 resource "aws_instance" "etcd" {
-    count = 3
+    count = "${var.etcd_count}"
     ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
     instance_type = "t2.micro"
 
@@ -115,7 +118,7 @@ resource "aws_route_table" "kubernetes" {
 }
 
 resource "aws_route_table_association" "kubernetes" {
-  count = 3
+  count = "${length(var.azs)}"
   subnet_id = "${element(aws_subnet.kubernetes.*.id, count.index)}"
   route_table_id = "${aws_route_table.kubernetes.id}"
 }
@@ -158,7 +161,7 @@ resource "aws_alb_listener" "etcd_client" {
 }
 
 resource "aws_alb_target_group_attachment" "etcd_client" {
-  count = 3
+  count = "${var.etcd_count}"
   target_group_arn = "${aws_alb_target_group.etcd_client.arn}"
   target_id = "${element(aws_instance.etcd.*.id, count.index)}"
   port = 2379
@@ -191,7 +194,7 @@ resource "aws_alb_listener" "etcd_peer" {
 }
 
 resource "aws_alb_target_group_attachment" "etcd_peer" {
-  count = 3
+  count = "${var.etcd_count}"
   target_group_arn = "${aws_alb_target_group.etcd_peer.arn}"
   target_id = "${element(aws_instance.etcd.*.id, count.index)}"
   port = 2380
@@ -213,27 +216,11 @@ resource "aws_route53_record" "etcd" {
 }
 
 
-variable amis {
-  description = "Default AMIs to use for nodes depending on the region"
-  type = "map"
-  default = {
-    ap-northeast-1 = "ami-0567c164"
-    ap-southeast-1 = "ami-a1288ec2"
-    cn-north-1 = "ami-d9f226b4"
-    eu-central-1 = "ami-8504fdea"
-    eu-west-1 = "ami-0d77397e"
-    sa-east-1 = "ami-e93da085"
-    us-east-1 = "ami-40d28157"
-    us-west-1 = "ami-6e165d0e"
-    us-west-2 = "ami-a9d276c9"
-  }
-}
 
 resource "aws_instance" "controller" {
 
-    count = 3
+    count = "${var.controller_count}"
     ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
-    #ami = "${lookup(var.amis, var.region)}"
     
     instance_type = "${var.controller_instance_type}"
 
@@ -290,7 +277,7 @@ resource "aws_alb_listener" "controller" {
 }
 
 resource "aws_alb_target_group_attachment" "controller" {
-  count = 3
+  count = "${var.controller_count}"
   target_group_arn = "${aws_alb_target_group.controller.arn}"
   target_id = "${element(aws_instance.controller.*.id, count.index)}"
   port = 6443
@@ -322,7 +309,7 @@ resource "aws_alb_listener" "controller_8080" {
 
 
 resource "aws_alb_target_group_attachment" "controller_8080" {
-  count = 3
+  count = "${var.controller_count}"
   target_group_arn = "${aws_alb_target_group.controller_8080.arn}"
   target_id = "${element(aws_instance.controller.*.id, count.index)}"
   port = 8080
@@ -396,7 +383,7 @@ resource  "aws_iam_instance_profile" "kubernetes" {
 
 
 resource "aws_instance" "worker" {
-    count = 3
+    count = "${var.worker_count}"
     ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
     instance_type = "${var.worker_instance_type}"
 

@@ -95,14 +95,16 @@
 - name: Create .kube folder
   file: 
     path: "/home/ubuntu/.kube"
+    owner: ubuntu
     state: directory
     recurse: yes
+    mode: 0755
 
 - name: Add Kubelet configuration client
   template:
     src: kubeconfig.j2
     dest: /home/ubuntu/.kube/config
-    mode: 644
+    mode: 0755
 
 
 
