@@ -92,6 +92,13 @@
     mode: 644
   become: true
 
+- name: Create .kube folder
+  file: 
+    path: "/home/ubuntu/.kube/config"
+    state: directory
+    recurse: yes
+  become: true
+
 - name: Add Kubelet configuration client
   template:
     src: kubeconfig.j2
