@@ -264,6 +264,8 @@ resource "aws_alb" "controller" {
   subnets         = ["${aws_subnet.kubernetes.*.id}"]
 }
 
+## 6443
+
 resource "aws_alb_target_group" "controller" {
   name     = "tf-controller"
   port     = 6443
@@ -274,6 +276,7 @@ resource "aws_alb_target_group" "controller" {
     port   = 8080
   }
 }
+
 
 resource "aws_alb_listener" "controller" {
   load_balancer_arn = "${aws_alb.controller.id}"
@@ -291,6 +294,38 @@ resource "aws_alb_target_group_attachment" "controller" {
   target_group_arn = "${aws_alb_target_group.controller.arn}"
   target_id = "${element(aws_instance.controller.*.id, count.index)}"
   port = 6443
+}
+
+## 8080
+
+resource "aws_alb_target_group" "controller_8080" {
+  name     = "tf-controller"
+  port     = 8080
+  protocol = "HTTP"
+  vpc_id   = "${aws_vpc.kubernetes.id}"
+  health_check {
+    path   = "/healthz"
+    port   = 8080
+  }
+}
+
+resource "aws_alb_listener" "controller_8080" {
+  load_balancer_arn = "${aws_alb.controller.id}"
+  port              = "8080"
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = "${aws_alb_target_group.controller_8080.id}"
+    type             = "forward"
+  }
+}
+
+
+resource "aws_alb_target_group_attachment" "controller_8080" {
+  count = 3
+  target_group_arn = "${aws_alb_target_group.controller_8080.arn}"
+  target_id = "${element(aws_instance.controller.*.id, count.index)}"
+  port = 8080
 }
 
 
