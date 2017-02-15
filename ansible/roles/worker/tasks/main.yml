@@ -97,14 +97,12 @@
     path: "/home/ubuntu/.kube/config"
     state: directory
     recurse: yes
-  become: true
 
 - name: Add Kubelet configuration client
   template:
     src: kubeconfig.j2
     dest: /home/ubuntu/.kube/config
     mode: 644
-  become: true
 
 
 
