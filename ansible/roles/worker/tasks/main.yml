@@ -94,7 +94,7 @@
 
 - name: Create .kube folder
   file: 
-    path: "/home/ubuntu/.kube/config"
+    path: "/home/ubuntu/.kube"
     state: directory
     recurse: yes
 
