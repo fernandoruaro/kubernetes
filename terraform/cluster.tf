@@ -267,7 +267,7 @@ resource "aws_alb" "controller" {
 ## 6443
 
 resource "aws_alb_target_group" "controller" {
-  name     = "tf-controller"
+  name     = "tf-controller-6443"
   port     = 6443
   protocol = "HTTP"
   vpc_id   = "${aws_vpc.kubernetes.id}"
@@ -299,7 +299,7 @@ resource "aws_alb_target_group_attachment" "controller" {
 ## 8080
 
 resource "aws_alb_target_group" "controller_8080" {
-  name     = "tf-controller"
+  name     = "tf-controller-8080"
   port     = 8080
   protocol = "HTTP"
   vpc_id   = "${aws_vpc.kubernetes.id}"
