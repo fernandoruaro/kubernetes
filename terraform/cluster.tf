@@ -400,3 +400,11 @@ resource "aws_instance" "worker" {
       kubernetes_role = "worker"
     }
 }
+
+output kubernetes_master_url {
+  value = "${aws_alb.controller.dns_name}"
+}
+
+output kubernetes_etcd_url {
+  value = "${aws_alb.etcd.dns_name}"
+}
