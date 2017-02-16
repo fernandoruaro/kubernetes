@@ -2,8 +2,4 @@ internal_cidr: "10.0.0.0/8" # Includes VPC and Kubernetes subnets
 kubernetes_service_cluster_cidr: "10.32.0.0/24"
 kubernetes_pod_cluster_cidr: "10.200.0.0/16"
 kubernetes_cluster_dns: "10.32.0.10"
-
 kubernetes_version: "v1.3.6"
-
-kubernetes_master_url: internal-tf-controller-alb-156441032.us-west-2.elb.amazonaws.com
-kubernetes_etcd_url: internal-tf-etcd-alb-1476821142.us-west-2.elb.amazonaws.com
