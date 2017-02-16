@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /terraform
+cd terraform
 VAR_FILE=../ansible/terraform_vars
 touch $VAR_FILE
 JSON="{"
