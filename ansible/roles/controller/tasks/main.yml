@@ -71,3 +71,6 @@
       - "'scheduler            Healthy' in cmd_result.stdout"
       - "'controller-manager   Healthy' in cmd_result.stdout"
       - "'etcd-0               Healthy' in cmd_result.stdout"
+
+
+#TODO: LOGROTATE /var/log/syslog
