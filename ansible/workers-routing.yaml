@@ -18,7 +18,7 @@
 
   # Run kuberctl on local machine to gather kubernetes nodes "facts"
   - name: Gather Kubernetes nodes facts
-    command: "kubectl get nodes --server=http://{{kubernetes_master_url}}:8080 --output=json --output=jsonpath='{range .items[*]}{.status.addresses[?(@.type=="InternalIP")].address},{.spec.podCIDR}{"\n"}{end}' | grep {{ hostvars[inventory_hostname].ec2_private_ip_address }}"
+    command: kubectl get nodes --server=http://{{kubernetes_master_url}}:8080 --output=json --output=jsonpath='{range .items[*]}{.status.addresses[?(@.type=="InternalIP")].address},{.spec.podCIDR}{"\n"}{end}' | grep {{ hostvars[inventory_hostname].ec2_private_ip_address }}
     register: net
     become: true
  
