@@ -118,6 +118,23 @@ resource "aws_security_group" "kubernetes_api" {
     cidr_blocks = ["${var.control_cidr}"]
   }
 
+  # Allow all traffic from the API ELB
+  ingress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    security_groups = ["${aws_security_group.kubernetes_api.id}"]
+  }
+
+  # Allow all traffic from the API ELB
+  ingress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    security_groups = ["${aws_security_group.deployer.id}"]
+  }
+
+
   # Allow all outbound traffic
   egress {
     from_port = 0
@@ -434,12 +451,12 @@ resource "aws_instance" "deployer" {
     ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
     instance_type = "${var.worker_instance_type}"
 
-    subnet_id = "${element(aws_subnet.kubernetes.*.id, count.index)}"
+    subnet_id = "${element(aws_subnet.kubernetes.*.id, 1)}"
     associate_public_ip_address = true # Instances have public, dynamic IP
     source_dest_check = false # TODO Required??
 
-    availability_zone = "${element(var.azs, count.index)}"
-    vpc_security_group_ids = ["${aws_security_group.kubernetes.id}"]
+    availability_zone = "${element(var.azs, 1)}"
+    vpc_security_group_ids = ["${aws_security_group.deployer.id}"]
     key_name = "${aws_key_pair.kubernetes.key_name}"
     
     tags {
