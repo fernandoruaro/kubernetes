@@ -17,11 +17,17 @@
   tasks:
 
   # Run kuberctl on local machine to gather kubernetes nodes "facts"
-  - name: Gather Kubernetes nodes facts (on localhost)
-    command: "kubectl get nodes --output=json"
+  - name: Gather Kubernetes nodes facts
+    command: "kubectl get nodes --server=http://{{kubernetes_master_url}}:8080 --output=json --output=jsonpath='{range .items[*]}{.status.addresses[?(@.type=="InternalIP")].address},{.spec.podCIDR}{"\n"}{end}' | grep {{ hostvars[inventory_hostname].ec2_private_ip_address }}"
+    register: net
+    become: true
+ 
+  - name: Add route
+    command: "sudo route add -net $(echo {{net.stdout}} | cut -d ',' -f 2 | cut -d '/' -f 1) netmask 255.255.255.0 gw $(echo {{net.stdout}} | cut -d ',' -f 1) metric 1"
     register: result
     become: true
  
+
   # VPC knows nothing about our Pod subnet and we must avoid internal traffic being routed as outbound Internet traffic
   # For explaination, see: http://kubernetes.io/docs/admin/networking/#google-compute-engine-gce
   - name: Add iptable rule to masquerade traffic bound outside VPC CIDR
