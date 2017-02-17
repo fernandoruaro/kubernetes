@@ -18,8 +18,9 @@
 
   # Run kuberctl on local machine to gather kubernetes nodes "facts"
   - name: Gather Kubernetes nodes facts (on localhost)
-    local_action: command kubectl get nodes --server={{kubernetes_master_url}} --output=json
+    command: "kubectl get nodes --server=http://{{kubernetes_master_url}}:8080 --output=json"
     register: result
+    become: true
  
   # VPC knows nothing about our Pod subnet and we must avoid internal traffic being routed as outbound Internet traffic
   # For explaination, see: http://kubernetes.io/docs/admin/networking/#google-compute-engine-gce
