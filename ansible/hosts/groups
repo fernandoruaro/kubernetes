@@ -2,6 +2,7 @@
 [tag_kubernetes_role_etcd]
 [tag_kubernetes_role_controller]
 [tag_kubernetes_role_worker]
+[tag_kubernetes_role_deployer]
 
 [etcd:children]
 tag_kubernetes_role_etcd
@@ -11,3 +12,6 @@ tag_kubernetes_role_controller
 
 [worker:children]
 tag_kubernetes_role_worker
+
+[deployer:children]
+tag_kubernetes_role_deployer

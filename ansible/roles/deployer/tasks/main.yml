@@ -1,0 +1,46 @@
+- name: Download kubectl binaries
+  get_url:
+    url: "{{ kubelet_download_path}}/{{ item }}"
+    dest: "/usr/bin"
+    group: root
+    owner: root
+    mode: 0755
+  with_items:
+    - kubectl
+  become: true
+
+- name: Create .kube folder
+  file: 
+    path: "/home/ubuntu/.kube"
+    owner: ubuntu
+    state: directory
+    recurse: yes
+    mode: 0755
+  become: true
+
+- name: Add Kubelet configuration client
+  template:
+    src: kubeconfig.j2
+    dest: /home/ubuntu/.kube/config
+    mode: 0755
+  become: true
+
+- name: Copy kube-dns files
+  copy:
+    src: "{{ item }}"
+    dest: "/home/ubuntu/"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - kube-dns-s.yaml
+    - kube-dns-rc.yaml
+  become: true
+
+- name: Apply kube-dns files
+  shell: kubectl apply -f /home/ubuntu/{{ item }}
+  register: net
+  with_items:
+    - kube-dns-s.yaml
+    - kube-dns-rc.yaml
+  become: true

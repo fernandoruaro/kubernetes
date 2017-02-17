@@ -13,3 +13,6 @@
 - hosts: worker
   roles:
     - worker
+- hosts: deployer
+  roles:
+    - deployer

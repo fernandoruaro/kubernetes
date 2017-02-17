@@ -83,6 +83,29 @@ resource "aws_security_group" "kubernetes" {
   }
 }
 
+
+
+resource "aws_security_group" "deployer" {
+  vpc_id = "${aws_vpc.kubernetes.id}"
+  name = "deployer"
+
+  # Allow all outbound
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Allow all traffic from control host IP
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "TCP"
+    cidr_blocks = ["${var.control_cidr}"]
+  }
+}
+
 resource "aws_security_group" "kubernetes_api" {
   vpc_id = "${aws_vpc.kubernetes.id}"
   name = "kubernetes-api"
@@ -114,6 +137,10 @@ resource "aws_route_table" "kubernetes" {
     route {
       cidr_block = "0.0.0.0/0"
       gateway_id = "${aws_internet_gateway.gw.id}"
+    }
+
+    lifecycle {
+      ignore_changes = ["*"]
     }
 }
 
@@ -400,6 +427,28 @@ resource "aws_instance" "worker" {
       kubernetes_role = "worker"
     }
 }
+
+
+
+resource "aws_instance" "deployer" {
+    ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
+    instance_type = "${var.worker_instance_type}"
+
+    subnet_id = "${element(aws_subnet.kubernetes.*.id, count.index)}"
+    associate_public_ip_address = true # Instances have public, dynamic IP
+    source_dest_check = false # TODO Required??
+
+    availability_zone = "${element(var.azs, count.index)}"
+    vpc_security_group_ids = ["${aws_security_group.kubernetes.id}"]
+    key_name = "${aws_key_pair.kubernetes.key_name}"
+    
+    tags {
+      ansible_managed = "yes",
+      kubernetes_role = "deployer"
+    }
+}
+
+
 
 output kubernetes_master_url {
   value = "${aws_alb.controller.dns_name}"
