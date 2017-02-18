@@ -39,8 +39,8 @@
 
 - name: Apply kube-dns files
   shell: kubectl apply -f /home/ubuntu/{{ item }}
-  register: net
   with_items:
     - kube-dns-s.yaml
     - kube-dns-rc.yaml
   become: true
+  become_user: ubuntu
