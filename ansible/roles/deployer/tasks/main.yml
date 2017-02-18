@@ -25,17 +25,16 @@
     mode: 0755
   become: true
 
+
 - name: Copy kube-dns files
-  copy:
-    src: "{{ item }}"
-    dest: "/home/ubuntu/"
-    owner: root
-    group: root
-    mode: 0644
+  template:
+    src: "{{ item }}.j2"
+    dest: "/home/ubuntu/{{ item }}"
+    mode: 700
+  become: true
   with_items:
     - kube-dns-s.yaml
     - kube-dns-rc.yaml
-  become: true
 
 - name: Apply kube-dns files
   shell: kubectl apply -f /home/ubuntu/{{ item }}

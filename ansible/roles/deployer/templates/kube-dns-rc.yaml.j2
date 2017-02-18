@@ -49,7 +49,7 @@ spec:
         args:
         - --domain=cluster.local.
         - --dns-port=10053
-        - --kube-master-url=http://kubernetes-master:8080
+        - --kube-master-url=http://{{hostvars[groups['controller'][0]].ec2_private_ip_address}}:8080
         ports:
         - containerPort: 10053
           name: dns-local
@@ -57,14 +57,6 @@ spec:
         - containerPort: 10053
           name: dns-tcp-local
           protocol: TCP
-        lifecycle:
-          postStart:
-            exec:
-              command:
-                - "bash"
-                - "-c"
-                - >
-                  ip=$(nslookup internal-tf-controller-alb-416454374.us-west-2.elb.amazonaws.com 8.8.8.8 | awk -F': ' 'NR==6 { print $2 } ') && echo "$ip kubernetes-master" >> /etc/hosts
       - name: dnsmasq
         image: gcr.io/google_containers/kube-dnsmasq-amd64:1.4
         livenessProbe:
