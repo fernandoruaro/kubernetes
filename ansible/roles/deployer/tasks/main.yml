@@ -1,5 +1,5 @@
-- name: Install AWS CLI
-  raw: "apt-get -y -q install awscli"
+- name: Install AWS CLI and JQ
+  raw: "apt-get -y -q install awscli jq"
   become: true
 
 - name: Download kubectl binaries
