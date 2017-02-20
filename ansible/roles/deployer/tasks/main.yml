@@ -34,7 +34,7 @@
 - name: Find and delete all blackholes
   shell: |
           aws ec2 describe-route-tables --route-table-id "{{ kubernetes_route_table_id }}" --filters "Name=route.state,Values=blackhole" --query 'RouteTables[0].Routes[?State == `blackhole`]' | jq -r ".[].DestinationCidrBlock" | while read cidr ; do
-            aws ec2 delete-route --route-table-id "{{ kubernetes_route_table_id }}" --destination-cidr-block $cidr
+            aws ec2 delete-route --route-table-id "{{ kubernetes_route_table_id }}" --destination-cidr-block "$cidr"
           done
   ignore_errors: yes
   become: true
