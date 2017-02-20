@@ -29,13 +29,34 @@
     mode: 0755
   become: true
 
-# Run kuberctl on local machine to gather kubernetes nodes "facts"
+
+ 
+- name: Find and delete all blackholes
+  shell: |
+          aws ec2 describe-route-tables --route-table-id "{{ kubernetes_route_table_id }}" --filters "Name=route.state,Values=blackhole" --query 'RouteTables[0].Routes[?State == `blackhole`]' | jq -r ".[].DestinationCidrBlock" | while read cidr ; do
+            aws ec2 delete-route --route-table-id "{{ kubernetes_route_table_id }}" --destination-cidr-block $cidr
+          done
+  ignore_errors: yes
+  become: true
+
+
 - name: Gather Kubernetes nodes facts
   shell: kubectl get nodes --output=json --output=jsonpath='{range .items[*]}{.status.addresses[?(@.type=="InternalIP")].address},{.spec.podCIDR}{"\n"}{end}'
   register: net
   become: true
   become_user: ubuntu
-
+ 
+- name: Update routes
+  shell: |
+          echo "{{net.stdout}}" | tr " " "\n" |  while read item ; do  
+            IP=$(echo $item | cut -d ',' -f 1)
+            CIDR=$(echo $item | cut -d ',' -f 2)
+            NETWORK_INTERFACE=$(aws ec2 describe-instances --filters "Name=private-ip-address,Values=$IP" --query 'Reservations[0].Instances[0].NetworkInterfaces[0].NetworkInterfaceId' --output text)
+            echo "$NETWORK_INTERFACE - $IP - $CIDR"
+            aws ec2 create-route --route-table-id "{{ kubernetes_route_table_id }}" --network-interface-id $NETWORK_INTERFACE --destination-cidr-block "$CIDR"
+          done
+  ignore_errors: yes
+  become: true
 
 
 
@@ -59,25 +80,8 @@
 
 
 
-#Find and delete all blackholes
-#aws ec2 describe-route-tables --route-table-id "{{ kubernetes_route_table_id }}" --filters "Name=route.state,Values=blackhole" --query 'RouteTables[0].Routes[?State == `blackhole`]' | jq -r ".[].DestinationCidrBlock" | while read cidr ; do
-#    aws ec2 delete-route --route-table-id "{{ kubernetes_route_table_id }}" --destination-cidr-block $cidr
-#done
-
-#Create route table association
-#NETWORK_INTERFACE=$(aws ec2 describe-instances --filters "Name=private-ip-address,Values=10.43.17.89" --query 'Reservations[0].Instances[0].NetworkInterfaces[0].NetworkInterfaceId')
-
-#aws ec2 create-route --route-table-id "{{ kubernetes_route_table_id }}" --network-interface-id 
-#aws ec2 create-route --route-table-id "rtb-2f704948" --network-interface-id "eni-892243cb" --destination-cidr-block "10.200.3.0/24"
 
 
-#echo "{{net.stdout}}" | tr " " "\n" |  while read item ; do  
-#  IP=$(echo $item | cut -d ',' -f 1)
-#  CIDR=$(echo $item | cut -d ',' -f 2)
-#  NETWORK_INTERFACE=$(aws ec2 describe-instances --filters "Name=private-ip-address,Values=$IP" --query 'Reservations[0].Instances[0].NetworkInterfaces[0].NetworkInterfaceId' --output text)
-#  echo "$NETWORK_INTERFACE - $IP - $CIDR"
-#  aws ec2 create-route --route-table-id "{{ kubernetes_route_table_id }}" --network-interface-id $NETWORK_INTERFACE --destination-cidr-block "$CIDR"
-#done
 
 
-#mkdir ~/.aws/ && touch ~/.aws/config && printf "[default]\noutput = json\nregion = us-west-2" > ~/.aws/config
+
