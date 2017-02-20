@@ -14,5 +14,7 @@
   roles:
     - worker
 - hosts: deployer
+  environment:
+    AWS_DEFAULT_REGION: us-west-2
   roles:
     - deployer

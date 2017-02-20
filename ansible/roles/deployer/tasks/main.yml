@@ -34,6 +34,7 @@
   shell: kubectl get nodes --output=json --output=jsonpath='{range .items[*]}{.status.addresses[?(@.type=="InternalIP")].address},{.spec.podCIDR}{"\n"}{end}'
   register: net
   become: true
+  become_user: ubuntu
 
 
 
