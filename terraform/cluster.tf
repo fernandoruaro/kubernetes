@@ -442,6 +442,7 @@ resource "aws_instance" "worker" {
 resource "aws_instance" "deployer" {
     ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
     instance_type = "${var.worker_instance_type}"
+    iam_instance_profile = "${aws_iam_instance_profile.kubernetes.id}"
 
     subnet_id = "${element(aws_subnet.kubernetes.*.id, 1)}"
     associate_public_ip_address = true # Instances have public, dynamic IP
@@ -465,4 +466,9 @@ output kubernetes_master_url {
 
 output kubernetes_etcd_url {
   value = "${aws_alb.etcd.dns_name}"
+}
+
+
+output kubernetes_route_table_id {
+  value = "${aws_route_table.kubernetes.id}"
 }
