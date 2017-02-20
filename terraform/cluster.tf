@@ -468,7 +468,10 @@ output kubernetes_etcd_url {
   value = "${aws_alb.etcd.dns_name}"
 }
 
-
 output kubernetes_route_table_id {
   value = "${aws_route_table.kubernetes.id}"
+}
+
+output aws_region {
+  value = "${var.region}"
 }
