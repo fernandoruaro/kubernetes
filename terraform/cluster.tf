@@ -447,7 +447,6 @@ resource "aws_launch_configuration" "default_worker" {
     key_name = "${aws_key_pair.kubernetes.key_name}"
     security_groups = ["${aws_security_group.kubernetes.id}"]
     associate_public_ip_address = true
-    source_dest_check = false
 }
 
 
