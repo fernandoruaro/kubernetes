@@ -452,9 +452,11 @@ resource "aws_launch_configuration" "default_worker" {
 
 resource "aws_autoscaling_group" "default_worker" {
     name = "default_worker"
-    availability_zones = "${var.azs}"
+    min_size = 3
+    max_size = 3
+    #availability_zones = "${var.azs}"
     launch_configuration = "${aws_launch_configuration.default_worker.name}"
-    vpc_zone_identifier = "$aws_subnet.kubernetes.*.id"
+    vpc_zone_identifier = ["${aws_subnet.kubernetes.*.id}"]
     lifecycle {
       create_before_destroy = true
     }
@@ -465,7 +467,7 @@ resource "aws_autoscaling_group" "default_worker" {
     }
     tag {
       key                 = "kubernetes_role"
-      value               = "deployer"
+      value               = "worker"
       propagate_at_launch = true
     }
 }
