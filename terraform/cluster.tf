@@ -8,7 +8,7 @@ variable "worker_instance_type" { default="t2.micro" }
 variable "control_cidr" { default="54.202.45.150/32" }
 variable "etcd_count" { default=3 }
 variable "controller_count" { default=3 }
-variable "worker_count" { default=3 }
+variable "worker_count" { default=4 }
 provider "aws" { region = "${var.region}" }
 
 resource "aws_key_pair" "kubernetes" {
@@ -447,13 +447,14 @@ resource "aws_launch_configuration" "default_worker" {
     key_name = "${aws_key_pair.kubernetes.key_name}"
     security_groups = ["${aws_security_group.kubernetes.id}"]
     associate_public_ip_address = true
+    source_dest_check = false
 }
 
 
 resource "aws_autoscaling_group" "default_worker" {
     name = "default_worker"
-    min_size = 3
-    max_size = 3
+    min_size = "${var.worker_count}"
+    max_size = "${var.worker_count}"
     #availability_zones = "${var.azs}"
     launch_configuration = "${aws_launch_configuration.default_worker.name}"
     vpc_zone_identifier = ["${aws_subnet.kubernetes.*.id}"]
