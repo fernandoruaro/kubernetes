@@ -57,6 +57,14 @@ spec:
         - containerPort: 10053
           name: dns-tcp-local
           protocol: TCP
+        lifecycle:
+          postStart:
+            exec:
+              command:
+                - "bash"
+                - "-c"
+                - >
+                  printf "nameserver 8.8.8.8,8.8.4.4\nsearch us-west-2.compute.internal" > /etc/resolv.conf
       - name: dnsmasq
         image: gcr.io/google_containers/kube-dnsmasq-amd64:1.4
         livenessProbe:
