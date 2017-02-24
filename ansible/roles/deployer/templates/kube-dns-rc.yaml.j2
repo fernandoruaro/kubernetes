@@ -61,7 +61,7 @@ spec:
           postStart:
             exec:
               command:
-                - "bash"
+                - "sh"
                 - "-c"
                 - >
                   printf "nameserver 8.8.8.8,8.8.4.4\nsearch us-west-2.compute.internal" > /etc/resolv.conf
