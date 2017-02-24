@@ -418,28 +418,6 @@ resource  "aws_iam_instance_profile" "kubernetes" {
 
 
 
-#resource "aws_instance" "worker" {
-#    count = "${var.worker_count}"
-#    ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
-#    instance_type = "${var.worker_instance_type}"
-
-#    subnet_id = "${element(aws_subnet.kubernetes.*.id, count.index)}"
-#    associate_public_ip_address = true # Instances have public, dynamic IP
-#    source_dest_check = false # TODO Required??
-
-#    availability_zone = "${element(var.azs, count.index)}"
-#    vpc_security_group_ids = ["${aws_security_group.kubernetes.id}"]
-#    key_name = "${aws_key_pair.kubernetes.key_name}"
-    
-#    tags {
-#      ansible_managed = "yes",
-#      kubernetes_role = "worker"
-#    }
-#}
-
-
-
-
 resource "aws_launch_configuration" "default_worker" {
     name = "default_worker"
     image_id = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
@@ -454,7 +432,6 @@ resource "aws_autoscaling_group" "default_worker" {
     name = "default_worker"
     min_size = "${var.worker_count}"
     max_size = "${var.worker_count}"
-    #availability_zones = "${var.azs}"
     launch_configuration = "${aws_launch_configuration.default_worker.name}"
     vpc_zone_identifier = ["${aws_subnet.kubernetes.*.id}"]
     lifecycle {
