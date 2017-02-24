@@ -470,7 +470,7 @@ resource "aws_instance" "deployer" {
 }
 
 resource "aws_s3_bucket" "backups" {
-    bucket = "ea_tf_backups"
+    bucket = "ea-tf-backups"
     acl = "private"
 }
 
