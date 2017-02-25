@@ -22,6 +22,9 @@ resource "aws_key_pair" "kubernetes" {
 resource "aws_vpc" "kubernetes" {
   cidr_block = "172.20.0.0/16"
   enable_dns_hostnames = true
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_subnet" "kubernetes" {
@@ -219,10 +222,61 @@ resource "aws_iam_role_policy" "kubernetes" {
 EOF
 }
 
+
+resource "aws_iam_role" "backup" {
+  name = "tf-backup"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "backup" {
+  name = "tf-backup"
+  role = "${aws_iam_role.backup.id}"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  {
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": "s3:ListAllMyBuckets",
+        "Resource": "arn:aws:s3:::*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": "s3:*",
+        "Resource": [
+          "arn:aws:s3:::${aws_s3_bucket.backups.bucket}",
+          "arn:aws:s3:::${aws_s3_bucket.backups.bucket}/*"
+        ]
+      }
+    ]
+  }
+}
+EOF
+}
+
+
+
+
+
+
 # IAM Instance Profile for Controller
 resource  "aws_iam_instance_profile" "kubernetes" {
  name = "tf-kubernetes"
- roles = ["${aws_iam_role.kubernetes.name}"]
+ roles = ["${aws_iam_role.kubernetes.name}", "${aws_iam_role.backup.name}"]
 }
 
 
@@ -246,7 +300,7 @@ module "minion" {
     source = "./modules/minion"
 
     key_name = "${var.key_name}"
-    servers = "3"
+    servers = "4"
     subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
     azs = "${var.azs}"
     security_group_id = "${aws_security_group.kubernetes.id}"
@@ -297,6 +351,6 @@ output aws_region {
   value = "${var.region}"
 }
 
-output vpc_cidr {
-  value = "${aws_vpc.kubernetes.cidr_block}"
+output s3_backup_bucket {
+  value = "${aws_s3_bucket.backups.bucket}"
 }
