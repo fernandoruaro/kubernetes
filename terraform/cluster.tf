@@ -411,7 +411,7 @@ output kubernetes_master_url {
 }
 
 output kubernetes_etcd_url {
-  value = "${etcd.dns_name}"
+  value = "${module.etcd.dns_name}"
 }
 
 output kubernetes_route_table_id {
