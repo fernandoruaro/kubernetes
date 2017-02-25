@@ -237,7 +237,7 @@ module "master" {
     azs = "${var.azs}"
     security_group_id = "${aws_security_group.kubernetes.id}"
     api_security_group_id = "${aws_security_group.kubernetes_api.id}"
-    iam_instance_profile_name_id = "${aws_iam_instance_profile.kubernetes.id}"
+    iam_instance_profile_id = "${aws_iam_instance_profile.kubernetes.id}"
 }
 
 
