@@ -40,7 +40,7 @@ module "etcd" {
     vpc_id = "${aws_vpc.kubernetes.id}"
     key_name = "${var.key_name}"
     servers = "3"
-    subnet_ids = "${aws_subnet.kubernetes.*.id}"
+    subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
     azs = "${var.azs}"
     security_group_id = "${aws_security_group.kubernetes.id}"
 }
