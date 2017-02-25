@@ -223,27 +223,9 @@ EOF
 }
 
 
-resource "aws_iam_role" "backup" {
-  name = "tf-backup"
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
-}
-
 resource "aws_iam_role_policy" "backup" {
   name = "tf-backup"
-  role = "${aws_iam_role.backup.id}"
+  role = "${aws_iam_role.kubernetes.id}"
   policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -276,7 +258,7 @@ EOF
 # IAM Instance Profile for Controller
 resource  "aws_iam_instance_profile" "kubernetes" {
  name = "tf-kubernetes"
- roles = ["${aws_iam_role.kubernetes.name}", "${aws_iam_role.backup.name}"]
+ roles = ["${aws_iam_role.kubernetes.name}"]
 }
 
 
