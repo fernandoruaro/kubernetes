@@ -8,7 +8,7 @@ variable "worker_instance_type" { default="t2.micro" }
 variable "control_cidr" { default="54.202.45.150/32" }
 variable "etcd_count" { default=3 }
 variable "controller_count" { default=3 }
-variable "worker_count" { default=3 }
+variable "worker_count" { default=0 }
 provider "aws" { region = "${var.region}" }
 
 resource "aws_key_pair" "kubernetes" {
@@ -450,6 +450,27 @@ resource "aws_autoscaling_group" "default_worker" {
 }
 
 
+
+
+resource "aws_instance" "worker" {
+     count = 3
+     ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
+     instance_type = "${var.worker_instance_type}"
+     subnet_id = "${element(aws_subnet.kubernetes.*.id, count.index)}"
+     associate_public_ip_address = true # Instances have public, dynamic IP
+     source_dest_check = false # TODO Required??
+     availability_zone = "${element(var.azs, count.index)}"
+     vpc_security_group_ids = ["${aws_security_group.kubernetes.id}"]
+     key_name = "${aws_key_pair.kubernetes.key_name}"
+    
+     tags {
+       ansible_managed = "yes",
+       kubernetes_role = "worker"
+     }
+ }
+ 
+
+
 resource "aws_instance" "deployer" {
     ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
     instance_type = "${var.worker_instance_type}"
@@ -468,6 +489,7 @@ resource "aws_instance" "deployer" {
       kubernetes_role = "deployer"
     }
 }
+
 
 resource "aws_s3_bucket" "backups" {
     bucket = "ea-tf-backups"
