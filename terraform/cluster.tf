@@ -35,7 +35,8 @@ resource "aws_subnet" "kubernetes" {
 
 
 module "etcd" {
-    source = "etcd"
+    source = "/modules/etcd"
+    
     vpc_id = "${aws_vpc.kubernetes.id}"
     key_name = "${var.key_name}"
     servers = "3"
