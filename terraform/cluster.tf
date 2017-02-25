@@ -87,26 +87,6 @@ resource "aws_security_group" "kubernetes" {
 
 
 
-resource "aws_security_group" "deployer" {
-  vpc_id = "${aws_vpc.kubernetes.id}"
-  name = "deployer"
-
-  # Allow all outbound
-  egress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # Allow all traffic from control host IP
-  ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "TCP"
-    cidr_blocks = ["${var.control_cidr}"]
-  }
-}
 
 resource "aws_security_group" "kubernetes_api" {
   vpc_id = "${aws_vpc.kubernetes.id}"
@@ -125,7 +105,7 @@ resource "aws_security_group" "kubernetes_api" {
     from_port = 0
     to_port = 0
     protocol = "-1"
-    security_groups = ["${aws_security_group.deployer.id}"]
+    security_groups = ["${module.deployer.security_group}"]
   }
 
 
@@ -286,27 +266,21 @@ module "minion" {
     security_group_id = "${aws_security_group.kubernetes.id}"
 }
 
+
+module "deployer" {
+    source = "./modules/deployer"
+
+    vpc_id = "${aws_vpc.kubernetes.id}"
+    key_name = "${var.key_name}"
+    subnet_id = "${element(aws_subnet.kubernetes.*.id, 1)}"
+    availability_zone = "${element(var.azs, 1)}"
+    security_group_id = "${aws_security_group.kubernetes.id}"
+    iam_instance_profile_id = "${aws_iam_instance_profile.kubernetes.id}"
+    control_cidr = "${var.control_cidr}"
+}
+
  
 
-
-resource "aws_instance" "deployer" {
-    ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
-    instance_type = "${var.worker_instance_type}"
-    iam_instance_profile = "${aws_iam_instance_profile.kubernetes.id}"
-
-    subnet_id = "${element(aws_subnet.kubernetes.*.id, 1)}"
-    associate_public_ip_address = true
-    source_dest_check = false
-
-    availability_zone = "${element(var.azs, 1)}"
-    vpc_security_group_ids = ["${aws_security_group.deployer.id}"]
-    key_name = "${aws_key_pair.kubernetes.key_name}"
-    
-    tags {
-      ansible_managed = "yes",
-      kubernetes_role = "deployer"
-    }
-}
 
 
 resource "aws_s3_bucket" "backups" {
