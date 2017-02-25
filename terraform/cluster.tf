@@ -409,12 +409,11 @@ resource "aws_iam_role_policy" "kubernetes" {
 EOF
 }
 
-
 # IAM Instance Profile for Controller
-#resource  "aws_iam_instance_profile" "kubernetes" {
-# name = "tf-kubernetes"
-# roles = ["${aws_iam_role.kubernetes.name}"]
-#}
+resource  "aws_iam_instance_profile" "kubernetes" {
+ name = "tf-kubernetes"
+ roles = ["${aws_iam_role.kubernetes.name}"]
+}
 
 
 
