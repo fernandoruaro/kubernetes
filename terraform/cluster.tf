@@ -250,7 +250,6 @@ module "minion" {
     subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
     azs = "${var.azs}"
     security_group_id = "${aws_security_group.kubernetes.id}"
-    api_security_group_id = "${aws_security_group.kubernetes_api.id}"
 }
 
  
