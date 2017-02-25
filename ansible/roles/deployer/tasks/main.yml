@@ -29,7 +29,7 @@
     mode: 0755
   become: true
 
- 
+
 #- name: Remove source/dest check
 #  shell: |
 #          aws ec2 describe-instances --filter="Name=tag:kubernetes_role,Values=worker" --query Reservations[].Instances[].[InstanceId][] | jq -r ".[]" | while read instance ; do
@@ -38,7 +38,7 @@
 #  ignore_errors: yes
 #  become: true
 
- 
+
 - name: Find and delete all blackholes
   shell: |
           aws ec2 describe-route-tables --route-table-id "{{ kubernetes_route_table_id }}" --filters "Name=route.state,Values=blackhole" --query 'RouteTables[0].Routes[?State == `blackhole`]' | jq -r ".[].DestinationCidrBlock" | while read cidr ; do

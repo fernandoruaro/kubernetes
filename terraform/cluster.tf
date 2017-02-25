@@ -6,15 +6,18 @@ variable "azs" {
 variable "controller_instance_type" { default="t2.micro" }
 variable "worker_instance_type" { default="t2.micro" }
 variable "control_cidr" { default="54.202.45.150/32" }
-variable "etcd_count" { default=3 }
 variable "controller_count" { default=3 }
 variable "worker_count" { default=4 }
+variable "key_name" { default="kubernetes_tf" }
+
+
 provider "aws" { region = "${var.region}" }
 
 resource "aws_key_pair" "kubernetes" {
-  key_name = "kubernetes_tf" 
+  key_name = "${var.key_name}" 
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCfCxovRTyz8cGnhj8tgUV7gK+u7CCOKXgICX9BVPo5EAHAP8WSmCofh8RnFTsajUkJA6NBKElzNNe9UpU8mgC9XZ9UQ2viG3KmLwXPxnONKipCGp0mUGWSp4p9uVi97nc4dTmBe7bTGRLoozBGi24Pm/80kDLAxlMnNk+j4jNjEGIvPG58Jc1W0qMqegRLfYup4ZGVOWHkHGPfz9/K3f5fNSDscVur1FLSKHq8pu9n0N43J+p8rpVKYZZt5By1JsJq1+mfdhcrGQyho2ejIyqyr1lS06NMJ9wcVYi5mRldfyNq/oMDYc/utXeLx8hredeA7gRZrWpzlS0cbY/F4ran ec2-user@ip-172-31-26-212"
 }
+
 
 
 resource "aws_vpc" "kubernetes" {
@@ -29,20 +32,16 @@ resource "aws_subnet" "kubernetes" {
   availability_zone = "${element(var.azs, count.index)}"
 }
 
-resource "aws_instance" "etcd" {
-    count = "${var.etcd_count}"
-    ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
-    instance_type = "t2.micro"
 
-    subnet_id = "${element(aws_subnet.kubernetes.*.id, count.index)}"
-    associate_public_ip_address = true
-    availability_zone = "${element(var.azs, count.index)}"
-    vpc_security_group_ids = ["${aws_security_group.kubernetes.id}"]
-    key_name = "${aws_key_pair.kubernetes.key_name}"
-    tags {
-        ansible_managed = "yes",
-        kubernetes_role = "etcd"
-    }
+
+module "etcd" {
+    source = "etcd"
+    vpc_id = "${aws_vpc.kubernetes.id}"
+    key_name = "${var.key_name}"
+    servers = "3"
+    subnet_ids = "${aws_subnet.kubernetes.*.id}"
+    azs = "${var.azs}"
+    security_group_id = "${aws_security_group.kubernetes.id}"
 }
 
 
@@ -161,95 +160,6 @@ resource "aws_route_table_association" "kubernetes" {
 
 
 
-############
-# ETCD ALB
-############
-resource "aws_alb" "etcd" {
-  name            = "tf-etcd-alb"
-  internal        = true
-  security_groups = ["${aws_security_group.kubernetes.id}"]
-  subnets         = ["${aws_subnet.kubernetes.*.id}"]
-}
-
-
-############
-# ETCD CLIENT
-############
-resource "aws_alb_target_group" "etcd_client" {
-  name     = "tf-etcd-client"
-  port     = 2379
-  protocol = "HTTP"
-  vpc_id   = "${aws_vpc.kubernetes.id}"
-  health_check {
-    path   = "/health"
-  }
-}
-
-resource "aws_alb_listener" "etcd_client" {
-  load_balancer_arn = "${aws_alb.etcd.id}"
-  port              = "2379"
-  protocol          = "HTTP"
-
-  default_action {
-    target_group_arn = "${aws_alb_target_group.etcd_client.id}"
-    type             = "forward"
-  }
-}
-
-resource "aws_alb_target_group_attachment" "etcd_client" {
-  count = "${var.etcd_count}"
-  target_group_arn = "${aws_alb_target_group.etcd_client.arn}"
-  target_id = "${element(aws_instance.etcd.*.id, count.index)}"
-  port = 2379
-}
-
-
-############
-# ETCD PEER
-############
-resource "aws_alb_target_group" "etcd_peer" {
-  name     = "tf-etcd-peer"
-  port     = 2380
-  protocol = "HTTP"
-  vpc_id   = "${aws_vpc.kubernetes.id}"
-  health_check {
-    path   = "/health"
-    port   = 2379
-  }
-}
-
-resource "aws_alb_listener" "etcd_peer" {
-  load_balancer_arn = "${aws_alb.etcd.id}"
-  port              = "2380"
-  protocol          = "HTTP"
-
-  default_action {
-    target_group_arn = "${aws_alb_target_group.etcd_peer.id}"
-    type             = "forward"
-  }
-}
-
-resource "aws_alb_target_group_attachment" "etcd_peer" {
-  count = "${var.etcd_count}"
-  target_group_arn = "${aws_alb_target_group.etcd_peer.arn}"
-  target_id = "${element(aws_instance.etcd.*.id, count.index)}"
-  port = 2380
-}
-
-###############
-# ROUTE 53
-###############
-resource "aws_route53_zone" "zone" {
-  name = "aws.encorehq.com"
-}
-
-resource "aws_route53_record" "etcd" {
-  zone_id = "${aws_route53_zone.zone.zone_id}"
-  name = "etcd.${aws_route53_zone.zone.name}"
-  type = "CNAME"
-  records = ["${aws_alb.etcd.dns_name}"]
-  ttl = 300
-}
 
 
 
@@ -501,7 +411,7 @@ output kubernetes_master_url {
 }
 
 output kubernetes_etcd_url {
-  value = "${aws_alb.etcd.dns_name}"
+  value = "${etcd.dns_name}"
 }
 
 output kubernetes_route_table_id {
