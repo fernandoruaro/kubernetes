@@ -20,7 +20,7 @@ resource "aws_key_pair" "kubernetes" {
 
 
 resource "aws_vpc" "kubernetes" {
-  cidr_block = "10.43.0.0/16"
+  cidr_block = "172.20.0.0/16"
   enable_dns_hostnames = true
 }
 
@@ -295,4 +295,8 @@ output kubernetes_route_table_id {
 
 output aws_region {
   value = "${var.region}"
+}
+
+output vpc_cidr {
+  value = "${aws_vpc.kubernetes.cidr_block}"
 }
