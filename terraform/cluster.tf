@@ -8,7 +8,7 @@ variable "worker_instance_type" { default="t2.micro" }
 variable "control_cidr" { default="54.202.45.150/32" }
 variable "etcd_count" { default=3 }
 variable "controller_count" { default=3 }
-variable "worker_count" { default=0 }
+variable "worker_count" { default=4 }
 provider "aws" { region = "${var.region}" }
 
 resource "aws_key_pair" "kubernetes" {
@@ -411,52 +411,52 @@ EOF
 
 
 # IAM Instance Profile for Controller
-resource  "aws_iam_instance_profile" "kubernetes" {
- name = "tf-kubernetes"
- roles = ["${aws_iam_role.kubernetes.name}"]
-}
+#resource  "aws_iam_instance_profile" "kubernetes" {
+# name = "tf-kubernetes"
+# roles = ["${aws_iam_role.kubernetes.name}"]
+#}
 
 
 
-resource "aws_launch_configuration" "default_worker" {
-    name = "default_worker"
-    image_id = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
-    instance_type = "${var.worker_instance_type}"
-    key_name = "${aws_key_pair.kubernetes.key_name}"
-    security_groups = ["${aws_security_group.kubernetes.id}"]
-    associate_public_ip_address = true
-}
+#resource "aws_launch_configuration" "default_worker" {
+#    name = "default_worker"
+#    image_id = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
+#    instance_type = "${var.worker_instance_type}"
+#    key_name = "${aws_key_pair.kubernetes.key_name}"
+#    security_groups = ["${aws_security_group.kubernetes.id}"]
+#    associate_public_ip_address = true
+#}
 
 
-resource "aws_autoscaling_group" "default_worker" {
-    name = "default_worker"
-    min_size = "${var.worker_count}"
-    max_size = "${var.worker_count}"
-    launch_configuration = "${aws_launch_configuration.default_worker.name}"
-    vpc_zone_identifier = ["${aws_subnet.kubernetes.*.id}"]
-    lifecycle {
-      create_before_destroy = true
-    }
-    tag {
-      key                 = "ansible_managed"
-      value               = "yes"
-      propagate_at_launch = true
-    }
-    tag {
-      key                 = "kubernetes_role"
-      value               = "worker"
-      propagate_at_launch = true
-    }
-}
+#resource "aws_autoscaling_group" "default_worker" {
+#    name = "default_worker"
+#    min_size = "${var.worker_count}"
+#    max_size = "${var.worker_count}"
+#    launch_configuration = "${aws_launch_configuration.default_worker.name}"
+#    vpc_zone_identifier = ["${aws_subnet.kubernetes.*.id}"]
+#    lifecycle {
+#      create_before_destroy = true
+#    }
+#    tag {
+#      key                 = "ansible_managed"
+#      value               = "yes"
+#      propagate_at_launch = true
+#    }
+#    tag {
+#      key                 = "kubernetes_role"
+#      value               = "worker"
+#      propagate_at_launch = true
+#    }
+#}
 
 
 
 
 resource "aws_instance" "worker" {
-     count = 3
+     count = "${var.worker_count}"
      ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
      instance_type = "${var.worker_instance_type}"
-     subnet_id = "${element(aws_subnet.kubernetes.*.id, count.index)}"
+     subnet_id = "${element(aws_subnet.kubernetes.*.id, count.index % 3)}"
      associate_public_ip_address = true # Instances have public, dynamic IP
      source_dest_check = false # TODO Required??
      availability_zone = "${element(var.azs, count.index)}"
@@ -477,8 +477,8 @@ resource "aws_instance" "deployer" {
     iam_instance_profile = "${aws_iam_instance_profile.kubernetes.id}"
 
     subnet_id = "${element(aws_subnet.kubernetes.*.id, 1)}"
-    associate_public_ip_address = true # Instances have public, dynamic IP
-    source_dest_check = false # TODO Required??
+    associate_public_ip_address = true
+    source_dest_check = false
 
     availability_zone = "${element(var.azs, 1)}"
     vpc_security_group_ids = ["${aws_security_group.deployer.id}"]
