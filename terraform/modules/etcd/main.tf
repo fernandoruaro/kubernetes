@@ -25,7 +25,7 @@ resource "aws_alb_target_group" "etcd_client" {
   name     = "tf-etcd-client"
   port     = 2379
   protocol = "HTTP"
-  vpc_id   = "${aws_vpc.kubernetes.id}"
+  vpc_id   = "${var.vpc_id}"
   health_check {
     path   = "/health"
   }
