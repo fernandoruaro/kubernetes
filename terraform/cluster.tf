@@ -240,59 +240,19 @@ module "master" {
     iam_instance_profile_id = "${aws_iam_instance_profile.kubernetes.id}"
 }
 
+ 
 
+module "minion" {
+    source = "./modules/minion"
 
+    key_name = "${var.key_name}"
+    servers = "3"
+    subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
+    azs = "${var.azs}"
+    security_group_id = "${aws_security_group.kubernetes.id}"
+    api_security_group_id = "${aws_security_group.kubernetes_api.id}"
+}
 
-#resource "aws_launch_configuration" "default_worker" {
-#    name = "default_worker"
-#    image_id = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
-#    instance_type = "${var.worker_instance_type}"
-#    key_name = "${aws_key_pair.kubernetes.key_name}"
-#    security_groups = ["${aws_security_group.kubernetes.id}"]
-#    associate_public_ip_address = true
-#}
-
-
-#resource "aws_autoscaling_group" "default_worker" {
-#    name = "default_worker"
-#    min_size = "${var.worker_count}"
-#    max_size = "${var.worker_count}"
-#    launch_configuration = "${aws_launch_configuration.default_worker.name}"
-#    vpc_zone_identifier = ["${aws_subnet.kubernetes.*.id}"]
-#    lifecycle {
-#      create_before_destroy = true
-#    }
-#    tag {
-#      key                 = "ansible_managed"
-#      value               = "yes"
-#      propagate_at_launch = true
-#    }
-#    tag {
-#      key                 = "kubernetes_role"
-#      value               = "worker"
-#      propagate_at_launch = true
-#    }
-#}
-
-
-
-
-resource "aws_instance" "worker" {
-     count = "${var.worker_count}"
-     ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
-     instance_type = "${var.worker_instance_type}"
-     subnet_id = "${element(aws_subnet.kubernetes.*.id, count.index % 3)}"
-     associate_public_ip_address = true # Instances have public, dynamic IP
-     source_dest_check = false # TODO Required??
-     availability_zone = "${element(var.azs, count.index)}"
-     vpc_security_group_ids = ["${aws_security_group.kubernetes.id}"]
-     key_name = "${aws_key_pair.kubernetes.key_name}"
-    
-     tags {
-       ansible_managed = "yes",
-       kubernetes_role = "worker"
-     }
- }
  
 
 

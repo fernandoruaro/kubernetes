@@ -7,11 +7,11 @@ resource "aws_instance" "controller" {
 
     iam_instance_profile = "${var.iam_instance_profile_id}"
 
-    subnet_id = "${element(var.subnet_ids, count.index % length(var.azs))}"
+    subnet_id = "${element(var.subnet_ids, count.index)}"
     associate_public_ip_address = true # Instances have public, dynamic IP
     source_dest_check = false # TODO Required??
 
-    availability_zone = "${element(var.azs, count.index % length(var.azs))}"
+    availability_zone = "${element(var.azs, count.index)}"
     vpc_security_group_ids = ["${var.security_group_id}"]
     key_name = "${var.key_name}"
     
@@ -19,6 +19,7 @@ resource "aws_instance" "controller" {
       ansible_managed = "yes",
       kubernetes_role = "controller"
       terraform_module = "master"
+      Name = "kube-master"
     }
 }
 
@@ -63,7 +64,7 @@ resource "aws_alb_listener" "controller" {
 resource "aws_alb_target_group_attachment" "controller" {
   count = "${var.servers}"
   target_group_arn = "${aws_alb_target_group.controller.arn}"
-  target_id = "${element(aws_instance.controller.*.id, count.index % length(var.azs))}"
+  target_id = "${element(aws_instance.controller.*.id, count.index)}"
   port = 6443
 }
 
@@ -95,6 +96,6 @@ resource "aws_alb_listener" "controller_8080" {
 resource "aws_alb_target_group_attachment" "controller_8080" {
   count = "${var.servers}"
   target_group_arn = "${aws_alb_target_group.controller_8080.arn}"
-  target_id = "${element(aws_instance.controller.*.id, count.index % length(var.azs))}"
+  target_id = "${element(aws_instance.controller.*.id, count.index)}"
   port = 8080
 }
