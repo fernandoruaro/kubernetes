@@ -2,9 +2,9 @@ resource "aws_instance" "etcd" {
     count = "${var.servers}"
     ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
     instance_type = "t2.micro"
-    subnet_id = "${element(var.subnet_ids, count.index % length(var.azs.size))}"
+    subnet_id = "${element(var.subnet_ids, count.index % length(var.azs))}"
     associate_public_ip_address = true
-    availability_zone = "${element(var.azs, count.index % length(var.azs.size))}"
+    availability_zone = "${element(var.azs, count.index % length(var.azs))}"
     vpc_security_group_ids = ["${var.security_group_id}"]
     key_name = "${var.key_name}"
     tags {
@@ -45,7 +45,7 @@ resource "aws_alb_listener" "etcd_client" {
 resource "aws_alb_target_group_attachment" "etcd_client" {
   count = "${var.servers}"
   target_group_arn = "${aws_alb_target_group.etcd_client.arn}"
-  target_id = "${element(aws_instance.etcd.*.id, count.index % length(var.azs.size))}"
+  target_id = "${element(aws_instance.etcd.*.id, count.index % length(var.azs))}"
   port = 2379
 }
 
@@ -74,7 +74,7 @@ resource "aws_alb_listener" "etcd_peer" {
 resource "aws_alb_target_group_attachment" "etcd_peer" {
   count = "${var.servers}"
   target_group_arn = "${aws_alb_target_group.etcd_peer.arn}"
-  target_id = "${element(aws_instance.etcd.*.id, count.index % length(var.azs.size))}"
+  target_id = "${element(aws_instance.etcd.*.id, count.index % length(var.azs))}"
   port = 2380
 }
 
