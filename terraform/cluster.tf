@@ -6,7 +6,6 @@ variable "azs" {
 variable "controller_instance_type" { default="t2.micro" }
 variable "worker_instance_type" { default="t2.micro" }
 variable "control_cidr" { default="54.202.45.150/32" }
-variable "controller_count" { default=3 }
 variable "worker_count" { default=4 }
 variable "key_name" { default="kubernetes_tf" }
 
@@ -164,106 +163,6 @@ resource "aws_route_table_association" "kubernetes" {
 
 
 
-resource "aws_instance" "controller" {
-
-    count = "${var.controller_count}"
-    ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
-    
-    instance_type = "${var.controller_instance_type}"
-
-    iam_instance_profile = "${aws_iam_instance_profile.kubernetes.id}"
-
-    subnet_id = "${element(aws_subnet.kubernetes.*.id, count.index)}"
-    associate_public_ip_address = true # Instances have public, dynamic IP
-    source_dest_check = false # TODO Required??
-
-    availability_zone = "${element(var.azs, count.index)}"
-    vpc_security_group_ids = ["${aws_security_group.kubernetes.id}"]
-    key_name = "${aws_key_pair.kubernetes.key_name}"
-    
-    tags {
-      ansible_managed = "yes",
-      kubernetes_role = "controller"
-    }
-}
-
-
-############
-# KUBE CONTROLLER ALB
-############
-resource "aws_alb" "controller" {
-  name            = "tf-controller-alb"
-  internal        = true
-  security_groups = ["${aws_security_group.kubernetes_api.id}","${aws_security_group.kubernetes.id}"]
-  subnets         = ["${aws_subnet.kubernetes.*.id}"]
-}
-
-## 6443
-
-resource "aws_alb_target_group" "controller" {
-  name     = "tf-controller-6443"
-  port     = 6443
-  protocol = "HTTP"
-  vpc_id   = "${aws_vpc.kubernetes.id}"
-  health_check {
-    path   = "/healthz"
-    port   = 8080
-  }
-}
-
-
-resource "aws_alb_listener" "controller" {
-  load_balancer_arn = "${aws_alb.controller.id}"
-  port              = "6443"
-  protocol          = "HTTP"
-
-  default_action {
-    target_group_arn = "${aws_alb_target_group.controller.id}"
-    type             = "forward"
-  }
-}
-
-resource "aws_alb_target_group_attachment" "controller" {
-  count = "${var.controller_count}"
-  target_group_arn = "${aws_alb_target_group.controller.arn}"
-  target_id = "${element(aws_instance.controller.*.id, count.index)}"
-  port = 6443
-}
-
-## 8080
-
-resource "aws_alb_target_group" "controller_8080" {
-  name     = "tf-controller-8080"
-  port     = 8080
-  protocol = "HTTP"
-  vpc_id   = "${aws_vpc.kubernetes.id}"
-  health_check {
-    path   = "/healthz"
-    port   = 8080
-  }
-}
-
-resource "aws_alb_listener" "controller_8080" {
-  load_balancer_arn = "${aws_alb.controller.id}"
-  port              = "8080"
-  protocol          = "HTTP"
-
-  default_action {
-    target_group_arn = "${aws_alb_target_group.controller_8080.id}"
-    type             = "forward"
-  }
-}
-
-
-resource "aws_alb_target_group_attachment" "controller_8080" {
-  count = "${var.controller_count}"
-  target_group_arn = "${aws_alb_target_group.controller_8080.arn}"
-  target_id = "${element(aws_instance.controller.*.id, count.index)}"
-  port = 8080
-}
-
-
-
 #######
 # IAM 
 #######
@@ -325,6 +224,22 @@ resource  "aws_iam_instance_profile" "kubernetes" {
  name = "tf-kubernetes"
  roles = ["${aws_iam_role.kubernetes.name}"]
 }
+
+
+
+module "master" {
+    source = "./modules/master"
+
+    vpc_id = "${aws_vpc.kubernetes.id}"
+    key_name = "${var.key_name}"
+    servers = "3"
+    subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
+    azs = "${var.azs}"
+    security_group_id = "${aws_security_group.kubernetes.id}"
+    api_security_group_id = "${aws_security_group.kubernetes_api.id}"
+    iam_instance_profile_name_id = "${aws_iam_instance_profile.kubernetes.id}"
+}
+
 
 
 
@@ -408,7 +323,7 @@ resource "aws_s3_bucket" "backups" {
 
 
 output kubernetes_master_url {
-  value = "${aws_alb.controller.dns_name}"
+  value = "${module.master.dns_name}"
 }
 
 output kubernetes_etcd_url {

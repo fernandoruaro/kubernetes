@@ -1,7 +1,7 @@
 resource "aws_instance" "etcd" {
     count = "${var.servers}"
     ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
-    instance_type = "t2.micro"
+    instance_type = "${var.instance_type}"
     subnet_id = "${element(var.subnet_ids, count.index % length(var.azs))}"
     associate_public_ip_address = true
     availability_zone = "${element(var.azs, count.index % length(var.azs))}"
@@ -10,6 +10,7 @@ resource "aws_instance" "etcd" {
     tags {
         ansible_managed = "yes",
         kubernetes_role = "etcd"
+        terraform_module = "etcd"
     }
 }
 
@@ -17,7 +18,7 @@ resource "aws_alb" "etcd" {
   name            = "tf-etcd-alb"
   internal        = true
   security_groups = ["${var.security_group_id}"]
-  subnets         = "${var.subnet_ids}"
+  subnets         = ["${var.subnet_ids}"]
 }
 
 
