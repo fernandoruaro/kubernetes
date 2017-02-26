@@ -1,4 +1,5 @@
 variable "region" { default="us-west-2" }
+variable "cluster_name" { default="kube-01"}
 variable "azs" {
   type = "list"
   default = ["us-west-2a", "us-west-2b", "us-west-2c"]
@@ -7,13 +8,12 @@ variable "controller_instance_type" { default="t2.micro" }
 variable "worker_instance_type" { default="t2.micro" }
 variable "control_cidr" { default="54.202.45.150/32" }
 variable "worker_count" { default=4 }
-variable "key_name" { default="kubernetes_tf" }
 
 
 provider "aws" { region = "${var.region}" }
 
 resource "aws_key_pair" "kubernetes" {
-  key_name = "${var.key_name}" 
+  key_name = "tf-${var.cluster_name}" 
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCfCxovRTyz8cGnhj8tgUV7gK+u7CCOKXgICX9BVPo5EAHAP8WSmCofh8RnFTsajUkJA6NBKElzNNe9UpU8mgC9XZ9UQ2viG3KmLwXPxnONKipCGp0mUGWSp4p9uVi97nc4dTmBe7bTGRLoozBGi24Pm/80kDLAxlMnNk+j4jNjEGIvPG58Jc1W0qMqegRLfYup4ZGVOWHkHGPfz9/K3f5fNSDscVur1FLSKHq8pu9n0N43J+p8rpVKYZZt5By1JsJq1+mfdhcrGQyho2ejIyqyr1lS06NMJ9wcVYi5mRldfyNq/oMDYc/utXeLx8hredeA7gRZrWpzlS0cbY/F4ran ec2-user@ip-172-31-26-212"
 }
 
@@ -40,11 +40,12 @@ module "etcd" {
     source = "./modules/etcd"
 
     vpc_id = "${aws_vpc.kubernetes.id}"
-    key_name = "${var.key_name}"
+    key_name = "${aws_key_pair.kubernetes.key_name}"
     servers = "3"
     subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
     azs = "${var.azs}"
     security_group_id = "${aws_security_group.kubernetes.id}"
+    cluster_name = "${var.cluster_name}"
 }
 
 
@@ -233,9 +234,8 @@ EOF
 
 
 
-# IAM Instance Profile for Controller
 resource  "aws_iam_instance_profile" "kubernetes" {
- name = "tf-kubernetes"
+ name = "tf-instance-profile-${var.cluster_name}"
  roles = ["${aws_iam_role.kubernetes.name}"]
 }
 
@@ -245,13 +245,14 @@ module "master" {
     source = "./modules/master"
 
     vpc_id = "${aws_vpc.kubernetes.id}"
-    key_name = "${var.key_name}"
+    key_name = "${aws_key_pair.kubernetes.key_name}"
     servers = "3"
     subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
     azs = "${var.azs}"
     security_group_id = "${aws_security_group.kubernetes.id}"
     api_security_group_id = "${aws_security_group.kubernetes_api.id}"
     iam_instance_profile_id = "${aws_iam_instance_profile.kubernetes.id}"
+    cluster_name = "${var.cluster_name}"
 }
 
  
@@ -259,7 +260,7 @@ module "master" {
 module "minion" {
     source = "./modules/minion"
 
-    key_name = "${var.key_name}"
+    key_name = "${aws_key_pair.kubernetes.key_name}"
     servers = "4"
     subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
     azs = "${var.azs}"
@@ -271,7 +272,7 @@ module "deployer" {
     source = "./modules/deployer"
 
     vpc_id = "${aws_vpc.kubernetes.id}"
-    key_name = "${var.key_name}"
+    key_name = "${aws_key_pair.kubernetes.key_name}"
     subnet_id = "${element(aws_subnet.kubernetes.*.id, 1)}"
     availability_zone = "${element(var.azs, 1)}"
     security_group_id = "${aws_security_group.kubernetes.id}"

@@ -27,7 +27,7 @@ resource "aws_alb" "etcd" {
 
 
 resource "aws_alb_target_group" "etcd_client" {
-  name     = "tf-etcd-client"
+  name     = "tf-etcd-${var.cluster_name}"
   port     = 2379
   protocol = "HTTP"
   vpc_id   = "${var.vpc_id}"
@@ -84,7 +84,7 @@ resource "aws_alb_target_group_attachment" "etcd_peer" {
 }
 
 resource "aws_s3_bucket" "backups" {
-    bucket = "tf-etcd-backups"
+    bucket = "tf-etcd-bkp-${var.cluster_name}"
     acl = "private"
 }
 

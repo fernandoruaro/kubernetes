@@ -37,3 +37,7 @@ variable "iam_instance_profile_id" {
 variable "instance_type" {
  default = "t2.micro"
 }
+
+variable "cluster_name" {
+ default = ""
+}
