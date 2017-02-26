@@ -4,22 +4,25 @@
     - name: Install Python
       raw: "apt-get -y -q install python"
       become: true
-  roles:
-    - franklinkim.newrelic
-  vars:
-    newrelic_service_state: started
-    newrelic_disable_docker: false
-    ansible_os_family: Debian
   become: true
 - hosts: etcd
   roles:
     - etcd
+    - franklinkim.newrelic
+  vars:
+    newrelic_labels: "kubernetes_cluster:{{ cluster_name }};kubernetes_role:etcd"
 - hosts: controller
   roles:
     - controller
+    - franklinkim.newrelic
+  vars:
+    newrelic_labels: "kubernetes_cluster:{{ cluster_name }};kubernetes_role:master"
 - hosts: worker
   roles:
     - worker
+    - franklinkim.newrelic
+  vars:
+    newrelic_labels: "kubernetes_cluster:{{ cluster_name }};kubernetes_role:minion"
 - hosts: deployer
   environment:
     AWS_DEFAULT_REGION: "{{ aws_region }}"
