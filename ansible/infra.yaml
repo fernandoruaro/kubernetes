@@ -8,7 +8,6 @@
     - franklinkim.newrelic
   vars:
     newrelic_service_state: started
-    newrelic_license_key: {{ newrelic_license_key }}
 - hosts: etcd
   roles:
     - etcd
