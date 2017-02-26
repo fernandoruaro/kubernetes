@@ -1,6 +1,6 @@
 module "ami" {
   source = "github.com/terraform-community-modules/tf_aws_ubuntu_ami"
-  region = "${provider.aws.region}"
+  region = "${var.region}"
   distribution = "xenial"
   virttype = "hvm"
   storagetype = "instance-store"
