@@ -78,6 +78,7 @@
     - kube-dns-s.yaml
     - kube-dns-rc.yaml
     - secret.yaml
+    - etcd-backup-cron.yaml
 
 - name: Apply kube-dns files
   shell: kubectl apply -f /home/ubuntu/{{ item }}
@@ -85,6 +86,7 @@
     - kube-dns-s.yaml
     - kube-dns-rc.yaml
     - secret.yaml
+    - etcd-backup-cron.yaml
   become: true
   become_user: ubuntu
 
