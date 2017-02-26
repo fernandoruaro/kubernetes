@@ -34,6 +34,9 @@ resource "aws_alb" "controller" {
   internal        = true
   security_groups = ["${var.api_security_group_id}","${var.security_group_id}"]
   subnets         = ["${var.subnet_ids}"]
+  tags {
+    terraform_module = "master"
+  }
 }
 
 ## 6443

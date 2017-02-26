@@ -280,15 +280,6 @@ module "deployer" {
 }
 
  
-
-
-
-resource "aws_s3_bucket" "backups" {
-    bucket = "ea-tf-backups"
-    acl = "private"
-}
-
-
 output kubernetes_master_url {
   value = "${module.master.dns_name}"
 }
@@ -305,6 +296,6 @@ output aws_region {
   value = "${var.region}"
 }
 
-output s3_backup_bucket {
-  value = "${aws_s3_bucket.backups.bucket}"
+output s3_etcd_backup_bucket {
+  value = "${module.etcd.s3_etcd_backup_bucket}"
 }

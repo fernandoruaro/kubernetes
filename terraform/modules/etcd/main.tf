@@ -83,6 +83,11 @@ resource "aws_alb_target_group_attachment" "etcd_peer" {
   port = 2380
 }
 
+resource "aws_s3_bucket" "backups" {
+    bucket = "tf-etcd-backups"
+    acl = "private"
+}
+
 ###############
 # ROUTE 53
 ###############
