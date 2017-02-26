@@ -337,6 +337,10 @@ resource "aws_iam_access_key" "etcd_backuper" {
 }
 
 
-output "secret" {
-  value = "${aws_iam_access_key.etcd_backuper.encrypted_secret}"
+output "etcd_key_id" {
+  value = "${aws_iam_access_key.etcd_backuper.id}"
+}
+
+output "etcd_key_secret" {
+  value = "${aws_iam_access_key.etcd_backuper.secret}"
 }
