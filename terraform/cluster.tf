@@ -10,10 +10,10 @@ variable "control_cidr" { default="54.202.45.150/32" }
 variable "worker_count" { default=4 }
 
 #When creating subnet inside an existing vpc, use this variable to skip an cidrs
-variable "subnet_skip_cidr_count" { default = 4 }
 variable "subnet_mask_bytes" { default = 4 }
 
 
+data "aws_caller_identity" "current" {}
 
 
 provider "aws" { region = "${var.region}" }
@@ -24,19 +24,37 @@ resource "aws_key_pair" "kubernetes" {
 }
 
 
+resource "aws_vpc" "existing_vpc" {
+  cidr_block = "172.20.0.0/16"
+}
+
 
 resource "aws_vpc" "kubernetes" {
-  cidr_block = "172.20.0.0/16"
+  cidr_block = "172.100.0.0/16"
   enable_dns_hostnames = true
   lifecycle {
     create_before_destroy = true
   }
 }
 
+
+resource "aws_vpc_peering_connection" "vpc_peering" {
+    peer_owner_id = "${data.aws_caller_identity.current.account_id}"
+    peer_vpc_id = "${aws_vpc.existing_vpc.id}"
+    vpc_id = "${aws_vpc.kubernetes.id}"
+    auto_accept = true
+
+    tags {
+      Name = "VPC Peering between ${var.cluster_name} and existing VPC"
+    }
+}
+
+
+
 resource "aws_subnet" "kubernetes" {
   count = "${length(var.azs)}"
   vpc_id = "${aws_vpc.kubernetes.id}"
-  cidr_block = "${cidrsubnet(aws_vpc.kubernetes.cidr_block, var.subnet_mask_bytes, count.index + var.subnet_skip_cidr_count)}"
+  cidr_block = "${cidrsubnet(aws_vpc.kubernetes.cidr_block, var.subnet_mask_bytes, count.index)}"
   availability_zone = "${element(var.azs, count.index)}"
 }
 

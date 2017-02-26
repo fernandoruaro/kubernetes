@@ -16,7 +16,7 @@ resource "aws_instance" "etcd" {
 }
 
 resource "aws_alb" "etcd" {
-  name            = "tf-etcd-alb"
+  name            = "tf-etcd-${var.cluster_name}"
   internal        = true
   security_groups = ["${var.security_group_id}"]
   subnets         = ["${var.subnet_ids}"]
@@ -27,7 +27,7 @@ resource "aws_alb" "etcd" {
 
 
 resource "aws_alb_target_group" "etcd_client" {
-  name     = "tf-etcd-${var.cluster_name}"
+  name     = "tf-etcd-client-${var.cluster_name}"
   port     = 2379
   protocol = "HTTP"
   vpc_id   = "${var.vpc_id}"
@@ -55,7 +55,7 @@ resource "aws_alb_target_group_attachment" "etcd_client" {
 }
 
 resource "aws_alb_target_group" "etcd_peer" {
-  name     = "tf-etcd-peer"
+  name     = "tf-etcd-peer-${var.cluster_name}"
   port     = 2380
   protocol = "HTTP"
   vpc_id   = "${var.vpc_id}"
