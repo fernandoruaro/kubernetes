@@ -177,7 +177,7 @@ resource "aws_route_table_association" "kubernetes" {
 
 
 resource "aws_iam_role" "kubernetes" {
-  name = "tf-kubernetes"
+  name = "tf-kubernetes-${var.cluster_name}"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -196,7 +196,7 @@ EOF
 
 # Role policy
 resource "aws_iam_role_policy" "kubernetes" {
-  name = "tf-kubernetes"
+  name = "tf-kubernetes-${var.cluster_name}"
   role = "${aws_iam_role.kubernetes.id}"
   policy = <<EOF
 {
@@ -226,33 +226,6 @@ resource "aws_iam_role_policy" "kubernetes" {
 }
 EOF
 }
-
-
-resource "aws_iam_role_policy" "backup" {
-  name = "tf-backup"
-  role = "${aws_iam_role.kubernetes.id}"
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": "s3:ListAllMyBuckets",
-      "Resource": "arn:aws:s3:::*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": "s3:*",
-      "Resource": [
-        "arn:aws:s3:::${module.etcd.backup_bucket}",
-        "arn:aws:s3:::${module.etcd.backup_bucket}/*"
-      ]
-    }
-  ]
-}
-EOF
-}
-
 
 
 
@@ -344,3 +317,56 @@ output "etcd_key_id" {
 output "etcd_key_secret" {
   value = "${aws_iam_access_key.etcd_backuper.secret}"
 }
+
+resource "aws_iam_policy_attachment" "etcd_admin" {
+    name = "tf-etcd-admin-${var.cluster_name}"
+    users = ["${aws_iam_user.etcd_backuper.name}"]
+    roles = ["${aws_iam_role.etcd_admin.name}"]
+}
+
+
+resource "aws_iam_role" "etcd_admin" {
+  name = "tf-etcd-admin-${var.cluster_name}"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+
+resource "aws_iam_role_policy" "backup" {
+  name = "tf-etcd-bkp-${var.cluster_name}"
+  role = "${aws_iam_role.kubernetes.id}"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:ListAllMyBuckets",
+      "Resource": "arn:aws:s3:::*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:::${module.etcd.backup_bucket}",
+        "arn:aws:s3:::${module.etcd.backup_bucket}/*"
+      ]
+    }
+  ]
+}
+EOF
+}
+
+
