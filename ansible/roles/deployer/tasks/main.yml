@@ -77,12 +77,14 @@
   with_items:
     - kube-dns-s.yaml
     - kube-dns-rc.yaml
+    - secret.yaml
 
 - name: Apply kube-dns files
   shell: kubectl apply -f /home/ubuntu/{{ item }}
   with_items:
     - kube-dns-s.yaml
     - kube-dns-rc.yaml
+    - secret.yaml
   become: true
   become_user: ubuntu
 
