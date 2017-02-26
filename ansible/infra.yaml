@@ -8,7 +8,7 @@
     - franklinkim.newrelic
   vars:
     newrelic_service_state: started
-    newrelic_disable_docker: no
+    newrelic_disable_docker: false
     ansible_os_family: Debian
   become: true
 - hosts: etcd
