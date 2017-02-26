@@ -9,6 +9,12 @@ variable "worker_instance_type" { default="t2.micro" }
 variable "control_cidr" { default="54.202.45.150/32" }
 variable "worker_count" { default=4 }
 
+#When creating subnet inside an existing vpc, use this variable to skip an cidrs
+variable "subnet_skip_cidr_count" { default = 4 }
+variable "subnet_mask_bytes" { default = 4 }
+
+
+
 
 provider "aws" { region = "${var.region}" }
 
@@ -30,7 +36,7 @@ resource "aws_vpc" "kubernetes" {
 resource "aws_subnet" "kubernetes" {
   count = "${length(var.azs)}"
   vpc_id = "${aws_vpc.kubernetes.id}"
-  cidr_block = "${cidrsubnet(aws_vpc.kubernetes.cidr_block, 4, count.index)}"
+  cidr_block = "${cidrsubnet(aws_vpc.kubernetes.cidr_block, var.subnet_mask_bytes, count.index + var.subnet_skip_cidr_count)}"
   availability_zone = "${element(var.azs, count.index)}"
 }
 
