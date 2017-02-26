@@ -260,7 +260,7 @@ module "minion" {
     source = "./modules/minion"
 
     key_name = "${aws_key_pair.kubernetes.key_name}"
-    servers = "4"
+    servers = "2"
     subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
     azs = "${var.azs}"
     security_group_id = "${aws_security_group.kubernetes.id}"
