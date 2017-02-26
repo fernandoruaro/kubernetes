@@ -80,7 +80,16 @@
     - secret.yaml
     - etcd-backup-cron.yaml
 
-- name: Apply kube-dns files
+
+- name: Stop services files
+  shell: kubectl delete -f /home/ubuntu/{{ item }}
+  with_items:
+    - etcd-backup-cron.yaml
+  become: true
+  become_user: ubuntu
+
+
+- name: Apply files
   shell: kubectl apply -f /home/ubuntu/{{ item }}
   with_items:
     - kube-dns-s.yaml
@@ -89,6 +98,7 @@
     - etcd-backup-cron.yaml
   become: true
   become_user: ubuntu
+
 
 
 

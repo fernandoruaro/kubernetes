@@ -4,16 +4,16 @@ metadata:
   name: etcd-backup
   namespace: kube-system
 spec:
-  schedule: "*/1 * * * *"
+  schedule: "0 */1 * * *"
   jobTemplate:
     spec:
       template:
         spec:
           containers:
           - image: iainmckay/etcd-backup
-            name: etcd
+            name: etcd-backup
             command: ["/bin/sh","-c"]
-            args: ["export S3_OBJECT=$(date +\"%F.json\"); ./start.sh backup"]
+            args: ["export S3_OBJECT=$(date +\"%F-%H.json\"); ./start.sh backup"]
             env:
             - name: AWS_DEFAULT_REGION
               value: {{ aws_region }}
