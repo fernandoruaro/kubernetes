@@ -219,8 +219,8 @@ resource "aws_iam_role_policy" "backup" {
       "Effect": "Allow",
       "Action": "s3:*",
       "Resource": [
-        "arn:aws:s3:::${aws_s3_bucket.backups.bucket}",
-        "arn:aws:s3:::${aws_s3_bucket.backups.bucket}/*"
+        "arn:aws:s3:::${module.etcd.backup_bucket}",
+        "arn:aws:s3:::${module.etcd.backup_bucket}/*"
       ]
     }
   ]
@@ -297,5 +297,5 @@ output aws_region {
 }
 
 output s3_etcd_backup_bucket {
-  value = "${module.etcd.s3_etcd_backup_bucket}"
+  value = "${module.etcd.backup_bucket}"
 }
