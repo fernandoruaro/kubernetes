@@ -324,3 +324,19 @@ output aws_region {
 output s3_etcd_backup_bucket {
   value = "${module.etcd.backup_bucket}"
 }
+
+
+resource "aws_iam_user" "etcd_backuper" {
+  name = "etcd_backuper"
+  path = "/system/"
+}
+
+
+resource "aws_iam_access_key" "etcd_backuper" {
+  user    = "${aws_iam_user.etcd_backuper.name}"
+}
+
+
+output "secret" {
+  value = "${aws_iam_access_key.etcd_backuper.encrypted_secret}"
+}
