@@ -300,7 +300,7 @@ output s3_etcd_backup_bucket {
 
 
 resource "aws_iam_user" "etcd_backuper" {
-  name = "etcd_backuper"
+  name = "etcd-backuper-${var.cluster_name}"
   path = "/system/"
 }
 
@@ -321,33 +321,12 @@ output "etcd_key_secret" {
 resource "aws_iam_policy_attachment" "etcd_admin" {
     name = "tf-etcd-admin-${var.cluster_name}"
     users = ["${aws_iam_user.etcd_backuper.name}"]
-    roles = ["${aws_iam_role.etcd_admin.name}"]
+    policy_arn = "${aws_iam_policy.etcd_backup.arn}"
 }
 
-
-resource "aws_iam_role" "etcd_admin" {
-  name = "tf-etcd-admin-${var.cluster_name}"
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
-}
-
-
-resource "aws_iam_role_policy" "backup" {
-  name = "tf-etcd-bkp-${var.cluster_name}"
-  role = "${aws_iam_role.kubernetes.id}"
-  policy = <<EOF
+resource "aws_iam_policy" "etcd_backup" {
+    name = "tf-etcd-bkp-${var.cluster_name}"
+    policy = <<EOF
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -368,5 +347,7 @@ resource "aws_iam_role_policy" "backup" {
 }
 EOF
 }
+
+
 
 
