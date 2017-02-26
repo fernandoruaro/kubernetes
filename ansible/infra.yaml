@@ -4,6 +4,11 @@
     - name: Install Python
       raw: "apt-get -y -q install python"
       become: true
+  roles:
+    - franklinkim.newrelic
+  vars:
+    newrelic_service_state: started
+    newrelic_license_key: {{ newrelic_license_key }}
 - hosts: etcd
   roles:
     - etcd
