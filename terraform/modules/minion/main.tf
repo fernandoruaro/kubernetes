@@ -1,3 +1,11 @@
+module "ami" {
+  source = "github.com/terraform-community-modules/tf_aws_ubuntu_ami"
+  region = "${provider.aws.region}"
+  distribution = "xenial"
+  virttype = "hvm"
+  storagetype = "instance-store"
+}
+
 
 
 #resource "aws_launch_configuration" "default_worker" {
@@ -36,7 +44,7 @@
 
 resource "aws_instance" "worker" {
      count = "${var.servers}"
-     ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
+     ami = "${module.ami.ami_id}" // Unbuntu 16.04 LTS HVM, EBS-SSD
      instance_type = "${var.instance_type}"
      subnet_id = "${element(var.subnet_ids, count.index)}"
      associate_public_ip_address = true # Instances have public, dynamic IP

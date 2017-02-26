@@ -16,6 +16,8 @@ variable "subnet_mask_bytes" { default = 4 }
 data "aws_caller_identity" "current" {}
 
 
+
+
 provider "aws" { region = "${var.region}" }
 
 resource "aws_key_pair" "kubernetes" {

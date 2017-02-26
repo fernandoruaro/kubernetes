@@ -11,7 +11,6 @@ JSON=$JSON"\"etcd_key_secret\":\"$(echo -n $(terraform output etcd_key_secret) |
 JSON=$JSON"\"aws_region\":\"$(terraform output aws_region)\","
 JSON=$JSON"\"s3_etcd_backup_bucket\":\"$(terraform output s3_etcd_backup_bucket)\","
 JSON=$JSON"\"cluster_name\":\"$(terraform output cluster_name)\","
-JSON=$JSON"\"newrelic_labels\":\"kubernetes_cluster:$(terraform output cluster_name)\","
 JSON=$JSON"\"kubernetes_etcd_url\":\"$(terraform output kubernetes_etcd_url)\""
 JSON=$JSON"}"
 echo $JSON > $VAR_FILE
