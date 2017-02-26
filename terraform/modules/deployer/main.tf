@@ -18,6 +18,10 @@ resource "aws_security_group" "deployer" {
     protocol = "TCP"
     cidr_blocks = ["${var.control_cidr}"]
   }
+
+  tags {
+    terraform_module = "deployer"
+  }
 }
 
 resource "aws_instance" "deployer" {

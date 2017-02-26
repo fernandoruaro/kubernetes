@@ -20,6 +20,9 @@ resource "aws_alb" "etcd" {
   internal        = true
   security_groups = ["${var.security_group_id}"]
   subnets         = ["${var.subnet_ids}"]
+  tags {
+    terraform_module = "etcd"
+  }
 }
 
 
@@ -30,6 +33,9 @@ resource "aws_alb_target_group" "etcd_client" {
   vpc_id   = "${var.vpc_id}"
   health_check {
     path   = "/health"
+  }
+  tags {
+    terraform_module = "etcd"
   }
 }
 
@@ -42,6 +48,9 @@ resource "aws_alb_listener" "etcd_client" {
     target_group_arn = "${aws_alb_target_group.etcd_client.id}"
     type             = "forward"
   }
+  tags {
+    terraform_module = "etcd"
+  }
 }
 
 resource "aws_alb_target_group_attachment" "etcd_client" {
@@ -49,6 +58,9 @@ resource "aws_alb_target_group_attachment" "etcd_client" {
   target_group_arn = "${aws_alb_target_group.etcd_client.arn}"
   target_id = "${element(aws_instance.etcd.*.id, count.index)}"
   port = 2379
+  tags {
+    terraform_module = "etcd"
+  }
 }
 
 resource "aws_alb_target_group" "etcd_peer" {
@@ -59,6 +71,9 @@ resource "aws_alb_target_group" "etcd_peer" {
   health_check {
     path   = "/health"
     port   = 2379
+  }
+  tags {
+    terraform_module = "etcd"
   }
 }
 
@@ -71,6 +86,9 @@ resource "aws_alb_listener" "etcd_peer" {
     target_group_arn = "${aws_alb_target_group.etcd_peer.id}"
     type             = "forward"
   }
+  tags {
+    terraform_module = "etcd"
+  }
 }
 
 resource "aws_alb_target_group_attachment" "etcd_peer" {
@@ -78,6 +96,9 @@ resource "aws_alb_target_group_attachment" "etcd_peer" {
   target_group_arn = "${aws_alb_target_group.etcd_peer.arn}"
   target_id = "${element(aws_instance.etcd.*.id, count.index)}"
   port = 2380
+  tags {
+    terraform_module = "etcd"
+  }
 }
 
 ###############
