@@ -73,10 +73,10 @@ echo public_key=$(cat "keys/${KEY_NAME}.pub") >> terraform/terraform.tfvars
 **Terraform**
 
 ```shell
-export MANAGER_IP=$(wget -qO- http://ipecho.net/plain)
-terraform get
-terraform plan -var manager_ip='"'${MANAGER_IP}'"'
-terraform Apply -var manager_ip='"'${MANAGER_IP}'"'
+export TF_VAR_control_cidr=$(wget -qO- http://ipecho.net/plain)
+terraform get -var-file="terraform.tfvars"
+terraform plan -var-file="terraform.tfvars"
+terraform apply -var-file="terraform.tfvars"
 
 ```
 **Moving Terraform variables to Ansible**
@@ -90,28 +90,28 @@ ansible-galaxy install franklinkim.newrelic
 
 
 ```shell
-ansible-playbook 01-basic-requirements.yaml --private-key=~/.ssh/kubernetes_tf.pem --extra-vars "@terraform_vars"  --extra-vars "newrelic_license_key=INSERT_YOUR_KEY_HERE"
+ansible-playbook 01-basic-requirements.yaml --private-key=../keys/${KEY_NAME} --extra-vars "@terraform_vars"  --extra-vars "newrelic_license_key=INSERT_YOUR_KEY_HERE"
 
 ```
 
 **02-etcd-cluster**
 
 ```shell
-ansible-playbook 02-etcd-cluster.yaml --private-key=~/.ssh/kubernetes_tf.pem --extra-vars "@terraform_vars"  --extra-vars "newrelic_license_key=INSERT_YOUR_KEY_HERE"
+ansible-playbook 02-etcd-cluster.yaml --private-key=../keys/${KEY_NAME} --extra-vars "@terraform_vars"  --extra-vars "newrelic_license_key=INSERT_YOUR_KEY_HERE"
 
 ```
 
 **03-master-cluster**
 
 ```shell
-ansible-playbook 03-master-cluster.yaml --private-key=~/.ssh/kubernetes_tf.pem --extra-vars "@terraform_vars"  --extra-vars "newrelic_license_key=INSERT_YOUR_KEY_HERE"
+ansible-playbook 03-master-cluster.yaml --private-key=../keys/${KEY_NAME} --extra-vars "@terraform_vars"  --extra-vars "newrelic_license_key=INSERT_YOUR_KEY_HERE"
 
 ```
 
 **04-minions-and-kube-services**
 
 ```shell
-ansible-playbook 04-minions-and-kube-services.yaml --private-key=~/.ssh/kubernetes_tf.pem --extra-vars "@terraform_vars"  --extra-vars "newrelic_license_key=INSERT_YOUR_KEY_HERE"
+ansible-playbook 04-minions-and-kube-services.yaml --private-key=../keys/${KEY_NAME} --extra-vars "@terraform_vars"  --extra-vars "newrelic_license_key=INSERT_YOUR_KEY_HERE"
 
 ```
 

@@ -1,3 +1,4 @@
 terraform_vars
 *.retry
 terraform.tfvars
+/keys/
