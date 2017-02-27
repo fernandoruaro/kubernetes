@@ -1,0 +1,27 @@
+##
+## INSTALL PYTHON AND NEW RELIC IN THE MACHINES
+##
+- hosts: all
+  gather_facts: false
+  tasks:
+    - name: Install Python
+      raw: "apt-get -y -q install python"
+      become: true
+- hosts: etcd
+  roles:
+    - franklinkim.newrelic
+  vars:
+    newrelic_labels: "kubernetes_cluster:{{ cluster_name }};kubernetes_role:etcd"
+  become: true
+- hosts: controller
+  roles:
+    - franklinkim.newrelic
+  vars:
+    newrelic_labels: "kubernetes_cluster:{{ cluster_name }};kubernetes_role:master"
+  become: true
+- hosts: worker
+  roles:
+    - franklinkim.newrelic
+  vars:
+    newrelic_labels: "kubernetes_cluster:{{ cluster_name }};kubernetes_role:minion"
+  become: true

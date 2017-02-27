@@ -1,0 +1,8 @@
+- hosts: worker
+  roles:
+    - worker
+- hosts: deployer
+  environment:
+    AWS_DEFAULT_REGION: "{{ aws_region }}"
+  roles:
+    - deployer
