@@ -6,7 +6,7 @@ variable "azs" {
 }
 variable "master_instance_type" { default="m4.large" }
 variable "etcd_instance_type" { default="m4.large" }
-variable "worker_instance_type" { default="m3.medium" }
+variable "minion_instance_type" { default="m3.medium" }
 variable "control_cidr" { default="54.202.45.150/32" }
 variable "minion_count" { default=2 }
 variable "subnet_mask_bytes" { default = 4 }
