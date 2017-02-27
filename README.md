@@ -54,12 +54,18 @@ wget https://releases.hashicorp.com/terraform/0.8.6/terraform_0.8.6_linux_amd64.
 unzip terraform_0.8.6_linux_amd64.zip
 echo "export PATH=$PWD:$PATH" >> ~/.bashrc
 export PATH=$PWD:$PATH
-cd ~/
+cd ..
 
 ```
 
-
-
+```shell
+mkdir keys
+export KEY_NAME=cluster_key #SET A NAME FOR YOUR KEY HERE
+cd keys
+ssh-keygen -t rsa -b 4096 -C "Kubernetes Cluster Key" -f "${KEY_NAME}" -N ""
+cd ..
+echo public_key=$(cat "keys/${KEY_NAME}.pub") >> terraform/terraform.tfvars
+```
 
 ### Running!
 

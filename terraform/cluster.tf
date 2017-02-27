@@ -1,13 +1,11 @@
-variable "region" { default="us-west-2" }
-variable "cluster_name" { default="kube-01"}
-variable "azs" {
-  type = "list"
-  default = ["us-west-2a", "us-west-2b", "us-west-2c"]
-}
+variable "region" {}
+variable "cluster_name" {}
+variable "azs" { type = "list" }
 variable "master_instance_type" { default="m4.large" }
 variable "etcd_instance_type" { default="m4.large" }
 variable "minion_instance_type" { default="m3.medium" }
-variable "control_cidr" { default="54.202.45.150/32" }
+variable "control_cidr" { default="" }
+variable "public_key" {default=""}
 variable "minion_count" { default=2 }
 variable "subnet_mask_bytes" { default = 4 }
 
