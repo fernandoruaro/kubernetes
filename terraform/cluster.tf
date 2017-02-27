@@ -67,7 +67,7 @@ module "etcd" {
     key_name = "${aws_key_pair.kubernetes.key_name}"
     servers = "3"
     subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
-    availability_zones = "${var.availability_zones}"
+    azs = "${var.availability_zones}"
     security_group_id = "${aws_security_group.kubernetes.id}"
     cluster_name = "${var.cluster_name}"
     region = "${var.region}"
@@ -247,7 +247,7 @@ module "master" {
     key_name = "${aws_key_pair.kubernetes.key_name}"
     servers = "3"
     subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
-    availability_zones = "${var.availability_zones}"
+    azs = "${var.availability_zones}"
     security_group_id = "${aws_security_group.kubernetes.id}"
     api_security_group_id = "${aws_security_group.kubernetes_api.id}"
     iam_instance_profile_id = "${aws_iam_instance_profile.kubernetes.id}"
@@ -264,7 +264,7 @@ module "minion" {
     key_name = "${aws_key_pair.kubernetes.key_name}"
     servers = "${var.minion_count}"
     subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
-    availability_zones = "${var.availability_zones}"
+    azs = "${var.availability_zones}"
     security_group_id = "${aws_security_group.kubernetes.id}"
     region = "${var.region}"
     instance_type = "${var.minion_instance_type}"
@@ -277,7 +277,7 @@ module "deployer" {
     vpc_id = "${aws_vpc.kubernetes.id}"
     key_name = "${aws_key_pair.kubernetes.key_name}"
     subnet_id = "${element(aws_subnet.kubernetes.*.id, 1)}"
-    availability_zone = "${element(var.availability_zones, 1)}"
+    azs = "${element(var.availability_zones, 1)}"
     security_group_id = "${aws_security_group.kubernetes.id}"
     iam_instance_profile_id = "${aws_iam_instance_profile.kubernetes.id}"
     control_cidr = "${var.control_cidr}"
