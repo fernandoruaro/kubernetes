@@ -1,6 +1,6 @@
 variable "region" {}
 variable "cluster_name" {}
-variable "azs" { type = "list" }
+variable "availability_zones" { type = "list" }
 variable "existing_vpc_ids" { type = "list" }
 variable "master_instance_type" { default="m4.large" }
 variable "etcd_instance_type" { default="m4.large" }
@@ -52,10 +52,10 @@ resource "aws_vpc_peering_connection" "vpc_peering" {
 
 
 resource "aws_subnet" "kubernetes" {
-  count = "${length(var.azs)}"
+  count = "${length(var.availability_zones)}"
   vpc_id = "${aws_vpc.kubernetes.id}"
   cidr_block = "${cidrsubnet(aws_vpc.kubernetes.cidr_block, var.subnet_mask_bytes, count.index)}"
-  availability_zone = "${element(var.azs, count.index)}"
+  availability_zone = "${element(var.availability_zones, count.index)}"
 }
 
 
@@ -67,7 +67,7 @@ module "etcd" {
     key_name = "${aws_key_pair.kubernetes.key_name}"
     servers = "3"
     subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
-    azs = "${var.azs}"
+    availability_zones = "${var.availability_zones}"
     security_group_id = "${aws_security_group.kubernetes.id}"
     cluster_name = "${var.cluster_name}"
     region = "${var.region}"
@@ -163,7 +163,7 @@ resource "aws_route_table" "kubernetes" {
 }
 
 resource "aws_route_table_association" "kubernetes" {
-  count = "${length(var.azs)}"
+  count = "${length(var.availability_zones)}"
   subnet_id = "${element(aws_subnet.kubernetes.*.id, count.index)}"
   route_table_id = "${aws_route_table.kubernetes.id}"
 }
@@ -247,7 +247,7 @@ module "master" {
     key_name = "${aws_key_pair.kubernetes.key_name}"
     servers = "3"
     subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
-    azs = "${var.azs}"
+    availability_zones = "${var.availability_zones}"
     security_group_id = "${aws_security_group.kubernetes.id}"
     api_security_group_id = "${aws_security_group.kubernetes_api.id}"
     iam_instance_profile_id = "${aws_iam_instance_profile.kubernetes.id}"
@@ -264,7 +264,7 @@ module "minion" {
     key_name = "${aws_key_pair.kubernetes.key_name}"
     servers = "${var.minion_count}"
     subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
-    azs = "${var.azs}"
+    availability_zones = "${var.availability_zones}"
     security_group_id = "${aws_security_group.kubernetes.id}"
     region = "${var.region}"
     instance_type = "${var.minion_instance_type}"
@@ -277,7 +277,7 @@ module "deployer" {
     vpc_id = "${aws_vpc.kubernetes.id}"
     key_name = "${aws_key_pair.kubernetes.key_name}"
     subnet_id = "${element(aws_subnet.kubernetes.*.id, 1)}"
-    availability_zone = "${element(var.azs, 1)}"
+    availability_zone = "${element(var.availability_zones, 1)}"
     security_group_id = "${aws_security_group.kubernetes.id}"
     iam_instance_profile_id = "${aws_iam_instance_profile.kubernetes.id}"
     control_cidr = "${var.control_cidr}"
