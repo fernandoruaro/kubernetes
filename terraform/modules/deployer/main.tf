@@ -1,3 +1,11 @@
+module "ami" {
+  source = "github.com/terraform-community-modules/tf_aws_ubuntu_ami"
+  region = "${var.region}"
+  distribution = "xenial"
+  virttype = "hvm"
+  storagetype = "ebs-ssd"
+}
+
 
 resource "aws_security_group" "deployer" {
   vpc_id = "${var.vpc_id}"
@@ -25,7 +33,8 @@ resource "aws_security_group" "deployer" {
 }
 
 resource "aws_instance" "deployer" {
-    ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
+    ami = "${module.ami.ami_id}"
+    
     instance_type = "${var.instance_type}"
     iam_instance_profile = "${var.iam_instance_profile_id}"
 
