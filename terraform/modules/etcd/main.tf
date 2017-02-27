@@ -93,7 +93,7 @@ resource "aws_alb_target_group_attachment" "etcd_peer" {
 }
 
 resource "aws_s3_bucket" "backups" {
-    bucket = "tf-etcd-bkp-${var.cluster_name}"
+    bucket = "etcd-bkp-${var.cluster_name}"
     acl = "private"
 }
 

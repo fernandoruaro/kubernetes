@@ -64,7 +64,7 @@ export KEY_NAME=cluster_key #SET A NAME FOR YOUR KEY HERE
 cd keys
 ssh-keygen -t rsa -b 4096 -C "Kubernetes Cluster Key" -f "${KEY_NAME}" -N ""
 cd ..
-echo public_key=$(cat "keys/${KEY_NAME}.pub") >> terraform/terraform.tfvars
+echo public_key=\"$(cat "keys/${KEY_NAME}.pub")\" >> terraform/terraform.tfvars
 ```
 
 ### Running!
@@ -73,8 +73,8 @@ echo public_key=$(cat "keys/${KEY_NAME}.pub") >> terraform/terraform.tfvars
 **Terraform**
 
 ```shell
-export TF_VAR_control_cidr=$(wget -qO- http://ipecho.net/plain)
-terraform get -var-file="terraform.tfvars"
+export TF_VAR_control_cidr=$(wget -qO- http://ipecho.net/plain)/32
+terraform get 
 terraform plan -var-file="terraform.tfvars"
 terraform apply -var-file="terraform.tfvars"
 
@@ -84,7 +84,9 @@ terraform apply -var-file="terraform.tfvars"
 ```shell
 ./pass_var_terraform_to_ansible.sh
 ```
-ansible-galaxy install franklinkim.newrelic
+
+
+ ansible-galaxy install -r requirements.yml
 
 **01-basic-requirements**
 
@@ -97,21 +99,21 @@ ansible-playbook 01-basic-requirements.yaml --private-key=../keys/${KEY_NAME} --
 **02-etcd-cluster**
 
 ```shell
-ansible-playbook 02-etcd-cluster.yaml --private-key=../keys/${KEY_NAME} --extra-vars "@terraform_vars"  --extra-vars "newrelic_license_key=INSERT_YOUR_KEY_HERE"
+ansible-playbook 02-etcd-cluster.yaml --private-key=../keys/${KEY_NAME} --extra-vars "@terraform_vars"
 
 ```
 
 **03-master-cluster**
 
 ```shell
-ansible-playbook 03-master-cluster.yaml --private-key=../keys/${KEY_NAME} --extra-vars "@terraform_vars"  --extra-vars "newrelic_license_key=INSERT_YOUR_KEY_HERE"
+ansible-playbook 03-master-cluster.yaml --private-key=../keys/${KEY_NAME} --extra-vars "@terraform_vars"
 
 ```
 
 **04-minions-and-kube-services**
 
 ```shell
-ansible-playbook 04-minions-and-kube-services.yaml --private-key=../keys/${KEY_NAME} --extra-vars "@terraform_vars"  --extra-vars "newrelic_license_key=INSERT_YOUR_KEY_HERE"
+ansible-playbook 04-minions-and-kube-services.yaml --private-key=../keys/${KEY_NAME} --extra-vars "@terraform_vars"
 
 ```
 
