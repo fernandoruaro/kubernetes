@@ -3,7 +3,7 @@ module "ami" {
   region = "${var.region}"
   distribution = "xenial"
   virttype = "hvm"
-  storagetype = "ebs"
+  storagetype = "ebs-ssd"
 }
 
 
