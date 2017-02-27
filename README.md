@@ -69,7 +69,7 @@ cd ~/
 ```shell
 export MANAGER_IP=$(wget -qO- http://ipecho.net/plain)
 terraform get
-terraform plan -var manager_ip='"'${MANAGER_IPT'"'
+terraform plan -var manager_ip='"'${MANAGER_IP}'"'
 terraform Apply -var manager_ip='"'${MANAGER_IP}'"'
 
 ```
