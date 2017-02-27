@@ -5,7 +5,7 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 [Service]
 ExecStart=/usr/bin/kube-apiserver \
   --admission-control=NamespaceLifecycle,LimitRanger,SecurityContextDeny,ResourceQuota \
-  --advertise-address={{ ansible_eth0.ipv4.address }} \
+  --advertise-address={{ hostvars[inventory_hostname].ec2_private_ip_address }} \
   --allow-privileged=true \
   --apiserver-count=3 \
   --authorization-mode=ABAC \
