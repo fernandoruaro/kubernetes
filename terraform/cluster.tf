@@ -37,7 +37,7 @@ resource "aws_vpc" "kubernetes" {
 
 
 resource "aws_vpc_peering_connection" "vpc_peering" {
-    count="length(${var.existing_vpc_ids})"
+    count="${length(var.existing_vpc_ids)}"
 
     peer_owner_id = "${data.aws_caller_identity.current.account_id}"
     peer_vpc_id = "${element(var.existing_vpc_ids, count.index)}"
