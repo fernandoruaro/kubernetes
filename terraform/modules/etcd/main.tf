@@ -1,6 +1,15 @@
+module "ami" {
+  source = "github.com/terraform-community-modules/tf_aws_ubuntu_ami"
+  region = "${var.region}"
+  distribution = "xenial"
+  virttype = "hvm"
+  storagetype = "ebs"
+}
+
+
 resource "aws_instance" "etcd" {
     count = "${var.servers}"
-    ami = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
+    ami = "${module.ami.ami_id}"
     instance_type = "${var.instance_type}"
     subnet_id = "${element(var.subnet_ids, count.index)}"
     associate_public_ip_address = true

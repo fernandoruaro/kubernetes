@@ -44,7 +44,7 @@ module "ami" {
 
 resource "aws_instance" "worker" {
      count = "${var.servers}"
-     ami = "${module.ami.ami_id}" // Unbuntu 16.04 LTS HVM, EBS-SSD
+     ami = "${module.ami.ami_id}"
      instance_type = "${var.instance_type}"
      subnet_id = "${element(var.subnet_ids, count.index)}"
      associate_public_ip_address = true # Instances have public, dynamic IP

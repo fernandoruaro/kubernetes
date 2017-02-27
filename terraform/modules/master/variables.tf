@@ -41,3 +41,7 @@ variable "instance_type" {
 variable "cluster_name" {
  default = ""
 }
+
+variable "region" {
+ default = ""
+}

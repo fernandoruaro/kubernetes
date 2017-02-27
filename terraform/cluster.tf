@@ -4,12 +4,11 @@ variable "azs" {
   type = "list"
   default = ["us-west-2a", "us-west-2b", "us-west-2c"]
 }
-variable "controller_instance_type" { default="t2.micro" }
-variable "worker_instance_type" { default="t2.micro" }
+variable "master_instance_type" { default="m4.large" }
+variable "etcd_instance_type" { default="m4.large" }
+variable "worker_instance_type" { default="m3.medium" }
 variable "control_cidr" { default="54.202.45.150/32" }
-variable "worker_count" { default=4 }
-
-#When creating subnet inside an existing vpc, use this variable to skip an cidrs
+variable "minion_count" { default=2 }
 variable "subnet_mask_bytes" { default = 4 }
 
 
@@ -72,6 +71,8 @@ module "etcd" {
     azs = "${var.azs}"
     security_group_id = "${aws_security_group.kubernetes.id}"
     cluster_name = "${var.cluster_name}"
+    region = "${var.region}"
+    instance_type = "${var.etcd_instance_type}"
 }
 
 
@@ -252,6 +253,8 @@ module "master" {
     api_security_group_id = "${aws_security_group.kubernetes_api.id}"
     iam_instance_profile_id = "${aws_iam_instance_profile.kubernetes.id}"
     cluster_name = "${var.cluster_name}"
+    region = "${var.region}"
+    instance_type = "${var.master_instance_type}"
 }
 
  
@@ -260,11 +263,12 @@ module "minion" {
     source = "./modules/minion"
 
     key_name = "${aws_key_pair.kubernetes.key_name}"
-    servers = "2"
+    servers = "${var.minion_count}"
     subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
     azs = "${var.azs}"
     security_group_id = "${aws_security_group.kubernetes.id}"
     region = "${var.region}"
+    instance_type = "${var.minion_instance_type}"
 }
 
 

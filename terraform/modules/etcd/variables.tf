@@ -32,3 +32,6 @@ variable "cluster_name" {
  default = ""
 }
 
+variable "region" {
+ default = ""
+}
