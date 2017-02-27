@@ -4,6 +4,10 @@
 [tag_kubernetes_role_worker]
 [tag_kubernetes_role_deployer]
 
+
+[ansible:children]
+tag_ansible_managed_yes
+
 [etcd:children]
 tag_kubernetes_role_etcd
 

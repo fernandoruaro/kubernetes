@@ -1,7 +1,7 @@
 ##
 ## INSTALL PYTHON AND NEW RELIC IN THE MACHINES
 ##
-- hosts: all
+- hosts: ansible
   gather_facts: false
   tasks:
     - name: Install Python
