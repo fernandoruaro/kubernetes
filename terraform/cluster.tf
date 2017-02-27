@@ -277,7 +277,7 @@ module "deployer" {
     vpc_id = "${aws_vpc.kubernetes.id}"
     key_name = "${aws_key_pair.kubernetes.key_name}"
     subnet_id = "${element(aws_subnet.kubernetes.*.id, 1)}"
-    azs = "${element(var.availability_zones, 1)}"
+    availability_zone = "${element(var.availability_zones, 1)}"
     security_group_id = "${aws_security_group.kubernetes.id}"
     iam_instance_profile_id = "${aws_iam_instance_profile.kubernetes.id}"
     control_cidr = "${var.control_cidr}"
