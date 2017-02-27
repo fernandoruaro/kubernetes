@@ -35,3 +35,6 @@ variable "iam_instance_profile_id" {
  default = ""
 }
 
+variable "region" {
+ default = ""
+}
