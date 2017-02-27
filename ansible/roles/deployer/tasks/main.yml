@@ -82,7 +82,7 @@
 
 
 - name: Stop services files
-  shell: kubectl delete -f /home/ubuntu/{{ item }}
+  shell: kubectl delete -f /home/ubuntu/{{ item }} --ignore-not-found
   with_items:
     - etcd-backup-cron.yaml
   become: true
