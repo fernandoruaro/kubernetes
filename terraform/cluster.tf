@@ -1,6 +1,7 @@
 variable "region" {}
 variable "cluster_name" {}
 variable "azs" { type = "list" }
+variable "existing_vpc_ids" { type = "list" }
 variable "master_instance_type" { default="m4.large" }
 variable "etcd_instance_type" { default="m4.large" }
 variable "minion_instance_type" { default="m3.medium" }
@@ -19,13 +20,11 @@ provider "aws" { region = "${var.region}" }
 
 resource "aws_key_pair" "kubernetes" {
   key_name = "tf-${var.cluster_name}" 
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCfCxovRTyz8cGnhj8tgUV7gK+u7CCOKXgICX9BVPo5EAHAP8WSmCofh8RnFTsajUkJA6NBKElzNNe9UpU8mgC9XZ9UQ2viG3KmLwXPxnONKipCGp0mUGWSp4p9uVi97nc4dTmBe7bTGRLoozBGi24Pm/80kDLAxlMnNk+j4jNjEGIvPG58Jc1W0qMqegRLfYup4ZGVOWHkHGPfz9/K3f5fNSDscVur1FLSKHq8pu9n0N43J+p8rpVKYZZt5By1JsJq1+mfdhcrGQyho2ejIyqyr1lS06NMJ9wcVYi5mRldfyNq/oMDYc/utXeLx8hredeA7gRZrWpzlS0cbY/F4ran ec2-user@ip-172-31-26-212"
+  public_key = "${var.public_key}"
 }
 
 
-resource "aws_vpc" "existing_vpc" {
-  cidr_block = "172.20.0.0/16"
-}
+
 
 
 resource "aws_vpc" "kubernetes" {
@@ -38,8 +37,10 @@ resource "aws_vpc" "kubernetes" {
 
 
 resource "aws_vpc_peering_connection" "vpc_peering" {
+    count="length(${var.existing_vpc_ids})"
+
     peer_owner_id = "${data.aws_caller_identity.current.account_id}"
-    peer_vpc_id = "${aws_vpc.existing_vpc.id}"
+    peer_vpc_id = "${element(var.existing_vpc_ids, count.index)}"
     vpc_id = "${aws_vpc.kubernetes.id}"
     auto_accept = true
 
