@@ -3,20 +3,20 @@
   become: true
 - name: Download etcd binaries
   get_url:
-    url: "https://github.com/coreos/etcd/releases/download/v3.0.1/etcd-v3.0.1-linux-amd64.tar.gz"
+    url: "https://github.com/coreos/etcd/releases/download/v{{ etcd_version }}/etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
     dest: "/usr/local/src"
   become: true
 - name: Unpack etcd binaries
   unarchive:
     copy: no
-    src: "/usr/local/src/etcd-v3.0.1-linux-amd64.tar.gz"
+    src: "/usr/local/src/etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
     dest: "/usr/local/src/"
-    creates: "/usr/local/src/etcd-v3.0.1-linux-amd64/etcd"
+    creates: "/usr/local/src/etcd-v{{ etcd_version }}-linux-amd64/etcd"
   become: true 
 - name: Copy etcd binaries
   copy:
     remote_src: true
-    src: "/usr/local/src/etcd-v3.0.1-linux-amd64/{{ item }}"
+    src: "/usr/local/src/etcd-v{{ etcd_version }}-linux-amd64/{{ item }}"
     dest: "/usr/bin"
     owner: root
     group: root
