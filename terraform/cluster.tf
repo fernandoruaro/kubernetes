@@ -9,6 +9,8 @@ variable "control_cidr" { default="" }
 variable "public_key" {default=""}
 variable "minion_count" { default=2 }
 variable "subnet_mask_bytes" { default = 4 }
+variable "vpc_cidr" { default = "172.21.0.0/16"}
+
 
 
 data "aws_caller_identity" "current" {}
@@ -28,7 +30,7 @@ resource "aws_key_pair" "kubernetes" {
 
 
 resource "aws_vpc" "kubernetes" {
-  cidr_block = "172.100.0.0/16"
+  cidr_block = "${var.vpc_cidr}"
   enable_dns_hostnames = true
   lifecycle {
     create_before_destroy = true
