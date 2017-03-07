@@ -117,3 +117,85 @@ ansible-playbook 04-minions-and-kube-services.yaml --private-key=../keys/${KEY_N
 
 ```
 
+
+
+
+
+
+
+
+
+
+------
+
+
+Certificates
+
+
+wget https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
+chmod +x cfssl_linux-amd64
+sudo mv cfssl_linux-amd64 /usr/local/bin/cfssl
+
+wget https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+chmod +x cfssljson_linux-amd64
+sudo mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
+
+cd keys
+
+echo '{
+  "signing": {
+    "default": {
+      "expiry": "8760h"
+    },
+    "profiles": {
+      "kubernetes": {
+        "usages": ["signing", "key encipherment", "server auth", "client auth"],
+        "expiry": "8760h"
+      }
+    }
+  }
+}' > ca-config.json
+
+
+echo '{
+  "CN": "Kubernetes",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "US",
+      "L": "Portland",
+      "O": "Kubernetes",
+      "OU": "CA",
+      "ST": "Oregon"
+    }
+  ]
+}' > ca-csr.json
+
+
+cfssl gencert -initca ca-csr.json | cfssljson -bare ca
+
+cat > kubernetes-csr.json <<EOF
+{
+  "CN": "kubernetes",
+  "hosts": [
+    "internal-tf-master-kube-01-1131071443.us-east-1.elb.amazonaws.com",
+    "127.0.0.1"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "US",
+      "L": "Portland",
+      "O": "Kubernetes",
+      "OU": "Cluster",
+      "ST": "Oregon"
+    }
+  ]
+}
+EOF
