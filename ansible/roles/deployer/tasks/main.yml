@@ -1,3 +1,25 @@
+---
+####################
+# Load Certificates
+####################
+
+- name: Create kubernetes data dir
+  file: path=/var/lib/kubernetes state=directory
+  become: true
+
+- name: Copy certificates
+  copy:
+    src: "{{ playbook_dir }}/../keys/{{ item }}"
+    dest: /var/lib/kubernetes
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - ca.pem
+    - kubernetes.pem
+    - kubernetes-key.pem
+  become: true
+
 - name: Install AWS CLI and JQ
   raw: "apt-get -y -q install awscli jq"
   become: true

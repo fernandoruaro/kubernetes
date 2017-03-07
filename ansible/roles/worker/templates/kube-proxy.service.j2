@@ -4,7 +4,7 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 ExecStart=/usr/bin/kube-proxy \
-  --master=http://{{ kubernetes_master_url }}:8080 \
+  --master=https://{{ groups['controller'][0].ec2_private_ip_address }}:6443 \
   --kubeconfig=/var/lib/kubelet/kubeconfig \
   --proxy-mode=iptables \
   --v=2
