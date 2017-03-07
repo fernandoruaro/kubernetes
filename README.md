@@ -182,7 +182,13 @@ cat > kubernetes-csr.json <<EOF
   "CN": "kubernetes",
   "hosts": [
     "127.0.0.1",
-    "*.ec2.internal",
+    "172.100.43.29",
+    "172.100.3.225",
+    "172.100.7.213",
+    "172.100.25.53",
+    "172.100.18.133",
+    "172.100.10.149",
+    "172.100.36.187",
     "internal-tf-master-kube-01-1131071443.us-east-1.elb.amazonaws.com"
   ],
   "key": {
