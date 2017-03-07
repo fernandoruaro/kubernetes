@@ -204,6 +204,32 @@ EOF
 }
 
 
+resource "aws_iam_role_policy" "secrets_access" {
+  name = "tf-secrets-${var.cluster_name}"
+  role = "${aws_iam_role.kubernetes.id}"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:ListAllMyBuckets",
+      "Resource": "arn:aws:s3:::*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:::${module.deployer.secrets_bucket}",
+        "arn:aws:s3:::${module.deployer.secrets_bucket}/*"
+      ]
+    }
+  ]
+}
+EOF
+}
+
+
 
 
 
@@ -300,6 +326,11 @@ EOF
 }
 
 
+
+
+
+
+
 #### OUTPUTS ####
 
  
@@ -333,4 +364,8 @@ output "etcd_key_secret" {
 
 output "cluster_name" {
   value = "${var.cluster_name}"
+}
+
+output secrets_bucket {
+  value = "${module.deployer.secrets_bucket}"
 }

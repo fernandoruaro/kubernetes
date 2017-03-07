@@ -227,3 +227,17 @@ cfssl gencert \
   -config=ca-config.json \
   -profile=kubernetes \
   kubernetes-csr.json | cfssljson -bare kubernetes
+
+
+
+
+
+
+------------------------------------------------
+DEPLOY
+
+mkdir secrets
+
+COMMAND="kubectl create secret generic env-secrets "$(for x in `ls $1`; do echo -ne "--from-file=$x=$x "; done)
+kubectl delete secret env-secrets
+sh -c ${COMMAND}
