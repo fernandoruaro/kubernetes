@@ -28,6 +28,8 @@ resource "aws_key_pair" "kubernetes" {
 
 
 
+#### VPC ####
+
 
 resource "aws_vpc" "kubernetes" {
   cidr_block = "${var.vpc_cidr}"
@@ -59,6 +61,31 @@ resource "aws_subnet" "kubernetes" {
   cidr_block = "${cidrsubnet(aws_vpc.kubernetes.cidr_block, var.subnet_mask_bytes, count.index)}"
   availability_zone = "${element(var.availability_zones, count.index)}"
 }
+
+
+resource "aws_internet_gateway" "gw" {
+  vpc_id = "${aws_vpc.kubernetes.id}"
+}
+
+resource "aws_route_table" "kubernetes" {
+    vpc_id = "${aws_vpc.kubernetes.id}"
+    route {
+      cidr_block = "0.0.0.0/0"
+      gateway_id = "${aws_internet_gateway.gw.id}"
+    }
+
+    lifecycle {
+      ignore_changes = ["*"]
+    }
+}
+
+resource "aws_route_table_association" "kubernetes" {
+  count = "${length(var.availability_zones)}"
+  subnet_id = "${element(aws_subnet.kubernetes.*.id, count.index)}"
+  route_table_id = "${aws_route_table.kubernetes.id}"
+}
+
+
 
 
 
@@ -114,29 +141,6 @@ resource "aws_security_group" "kubernetes" {
   }
 }
 
-
-
-resource "aws_internet_gateway" "gw" {
-  vpc_id = "${aws_vpc.kubernetes.id}"
-}
-
-resource "aws_route_table" "kubernetes" {
-    vpc_id = "${aws_vpc.kubernetes.id}"
-    route {
-      cidr_block = "0.0.0.0/0"
-      gateway_id = "${aws_internet_gateway.gw.id}"
-    }
-
-    lifecycle {
-      ignore_changes = ["*"]
-    }
-}
-
-resource "aws_route_table_association" "kubernetes" {
-  count = "${length(var.availability_zones)}"
-  subnet_id = "${element(aws_subnet.kubernetes.*.id, count.index)}"
-  route_table_id = "${aws_route_table.kubernetes.id}"
-}
 
 
 
@@ -252,26 +256,7 @@ module "deployer" {
     region = "${var.region}"
 }
 
- 
-output kubernetes_master_url {
-  value = "${module.master.dns_name}"
-}
 
-output kubernetes_etcd_url {
-  value = "${module.etcd.dns_name}"
-}
-
-output kubernetes_route_table_id {
-  value = "${aws_route_table.kubernetes.id}"
-}
-
-output aws_region {
-  value = "${var.region}"
-}
-
-output s3_etcd_backup_bucket {
-  value = "${module.etcd.backup_bucket}"
-}
 
 
 resource "aws_iam_user" "etcd_backuper" {
@@ -279,18 +264,8 @@ resource "aws_iam_user" "etcd_backuper" {
   path = "/system/"
 }
 
-
 resource "aws_iam_access_key" "etcd_backuper" {
   user    = "${aws_iam_user.etcd_backuper.name}"
-}
-
-
-output "etcd_key_id" {
-  value = "${aws_iam_access_key.etcd_backuper.id}"
-}
-
-output "etcd_key_secret" {
-  value = "${aws_iam_access_key.etcd_backuper.secret}"
 }
 
 resource "aws_iam_policy_attachment" "etcd_admin" {
@@ -324,10 +299,36 @@ EOF
 }
 
 
+#### OUTPUTS ####
 
+ 
+output kubernetes_master_url {
+  value = "${module.master.dns_name}"
+}
 
+output kubernetes_etcd_url {
+  value = "${module.etcd.dns_name}"
+}
 
+output kubernetes_route_table_id {
+  value = "${aws_route_table.kubernetes.id}"
+}
 
+output aws_region {
+  value = "${var.region}"
+}
+
+output s3_etcd_backup_bucket {
+  value = "${module.etcd.backup_bucket}"
+}
+
+output "etcd_key_id" {
+  value = "${aws_iam_access_key.etcd_backuper.id}"
+}
+
+output "etcd_key_secret" {
+  value = "${aws_iam_access_key.etcd_backuper.secret}"
+}
 
 output "cluster_name" {
   value = "${var.cluster_name}"

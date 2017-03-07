@@ -53,3 +53,10 @@ resource "aws_instance" "deployer" {
       Name = "deployer"
     }
 }
+
+
+
+resource "aws_s3_bucket" "secrets" {
+    bucket = "secrets-${var.cluster_name}"
+    acl = "private"
+}
