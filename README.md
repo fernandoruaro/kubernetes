@@ -181,8 +181,9 @@ cat > kubernetes-csr.json <<EOF
 {
   "CN": "kubernetes",
   "hosts": [
-    "internal-tf-master-kube-01-1131071443.us-east-1.elb.amazonaws.com",
-    "127.0.0.1"
+    "127.0.0.1",
+    "*.ec2.internal",
+    "internal-tf-master-kube-01-1131071443.us-east-1.elb.amazonaws.com"
   ],
   "key": {
     "algo": "rsa",
@@ -199,3 +200,10 @@ cat > kubernetes-csr.json <<EOF
   ]
 }
 EOF
+
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -profile=kubernetes \
+  kubernetes-csr.json | cfssljson -bare kubernetes
