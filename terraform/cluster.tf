@@ -102,6 +102,15 @@ resource "aws_security_group" "kubernetes" {
     from_port = 0
     to_port = 0
     protocol = "-1"
+    security_groups = ["${module.deployer.security_group}"]
+  }
+
+
+  # Allow all traffic from the API ELB
+  ingress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
     security_groups = ["${aws_security_group.kubernetes_api.id}"]
   }
 
@@ -114,38 +123,6 @@ resource "aws_security_group" "kubernetes" {
   }
 }
 
-
-
-
-resource "aws_security_group" "kubernetes_api" {
-  vpc_id = "${aws_vpc.kubernetes.id}"
-  name = "kubernetes-api"
-
-  # Allow inbound traffic to the port used by Kubernetes API HTTPS
-  ingress {
-    from_port = 6443
-    to_port = 6443
-    protocol = "TCP"
-    cidr_blocks = ["${var.control_cidr}"]
-  }
-
-  # Allow all traffic from the API ELB
-  ingress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    security_groups = ["${module.deployer.security_group}"]
-  }
-
-
-  # Allow all outbound traffic
-  egress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
 
 
 resource "aws_internet_gateway" "gw" {
@@ -251,7 +228,6 @@ module "master" {
     subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
     azs = "${var.availability_zones}"
     security_group_id = "${aws_security_group.kubernetes.id}"
-    api_security_group_id = "${aws_security_group.kubernetes_api.id}"
     iam_instance_profile_id = "${aws_iam_instance_profile.kubernetes.id}"
     cluster_name = "${var.cluster_name}"
     region = "${var.region}"
@@ -280,7 +256,6 @@ module "deployer" {
     key_name = "${aws_key_pair.kubernetes.key_name}"
     subnet_id = "${element(aws_subnet.kubernetes.*.id, 1)}"
     availability_zone = "${element(var.availability_zones, 1)}"
-    security_group_id = "${aws_security_group.kubernetes.id}"
     iam_instance_profile_id = "${aws_iam_instance_profile.kubernetes.id}"
     control_cidr = "${var.control_cidr}"
     region = "${var.region}"

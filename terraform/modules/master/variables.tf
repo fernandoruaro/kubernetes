@@ -10,12 +10,6 @@ variable "security_group_id" {
   default     = ""
 }
 
-
-variable "api_security_group_id" {
-  description = "Security group for master API."
-  default     = ""
-}
-
 variable "subnet_ids" {
   default     = []
   description = "A list of subnet ids (1 for each az)"

@@ -7,13 +7,6 @@ variable "control_cidr" {
   description = "CIDR of the instace used for running ansible"
 }
 
-
-
-variable "security_group_id" {
-  description = "Security group for master."
-  default     = ""
-}
-
 variable "subnet_id" {
   default     = ""
   description = "A list of subnet ids (1 for each az)"

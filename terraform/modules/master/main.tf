@@ -41,7 +41,7 @@ resource "aws_instance" "controller" {
 resource "aws_alb" "controller" {
   name            = "tf-master-${var.cluster_name}"
   internal        = true
-  security_groups = ["${var.api_security_group_id}","${var.security_group_id}"]
+  security_groups = ["${var.security_group_id}"]
   subnets         = ["${var.subnet_ids}"]
   tags {
     terraform_module = "master"
