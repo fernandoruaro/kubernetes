@@ -105,15 +105,6 @@ resource "aws_security_group" "kubernetes" {
     security_groups = ["${module.deployer.security_group}"]
   }
 
-
-  # Allow all traffic from the API ELB
-  ingress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    security_groups = ["${aws_security_group.kubernetes_api.id}"]
-  }
-
   # Allow all traffic from control host IP
   ingress {
     from_port = 0
