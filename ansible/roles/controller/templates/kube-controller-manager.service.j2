@@ -8,8 +8,10 @@ ExecStart=/usr/bin/kube-controller-manager \
   --cluster-cidr={{ kubernetes_pod_cluster_cidr }} \
   --cluster-name=kubernetes \
   --leader-elect=true \
-  --master=http://{{ hostvars[inventory_hostname].ec2_private_ip_address }}:8080 \
+  --master=https://{{ hostvars[inventory_hostname].ec2_private_ip_address }}:6443 \
   --service-cluster-ip-range={{ kubernetes_service_cluster_cidr }} \
+  --service-account-private-key-file=/var/lib/kubernetes/kubernetes-key.pem \
+  --root-ca-file=/var/lib/kubernetes/ca.pem \
   --v=2
 Restart=on-failure
 RestartSec=5
@@ -17,6 +19,5 @@ RestartSec=5
 [Install]
 WantedBy=multi-user.target
 
-#--service-account-private-key-file=/var/lib/kubernetes/kubernetes-key.pem \
-#--root-ca-file=/var/lib/kubernetes/ca.pem \
+
   

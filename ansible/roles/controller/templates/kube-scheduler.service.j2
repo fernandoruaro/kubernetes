@@ -5,7 +5,7 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 [Service]
 ExecStart=/usr/bin/kube-scheduler \
   --leader-elect=true \
-  --master=http://{{ hostvars[inventory_hostname].ec2_private_ip_address }}:8080 \
+  --master=https://{{ hostvars[inventory_hostname].ec2_private_ip_address }}:6443 \
   --v=2
 Restart=on-failure
 RestartSec=5

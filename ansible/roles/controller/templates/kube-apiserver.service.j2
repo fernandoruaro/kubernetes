@@ -19,6 +19,10 @@ ExecStart=/usr/bin/kube-apiserver \
   --token-auth-file=/usr/kubernetes/token.csv \
   --runtime-config=batch/v2alpha1 \
   --storage-backend=etcd2 \
+  --kubelet-certificate-authority=/var/lib/kubernetes/ca.pem \
+  --tls-cert-file=/var/lib/kubernetes/kubernetes.pem \
+  --tls-private-key-file=/var/lib/kubernetes/kubernetes-key.pem \
+  --service-account-key-file=/var/lib/kubernetes/kubernetes-key.pem \
   --v=4
 Restart=on-failure
 RestartSec=5
@@ -27,9 +31,5 @@ RestartSec=5
 WantedBy=multi-user.target
 
 
-#--etcd-cafile=/var/lib/kubernetes/ca.pem \
-#--kubelet-certificate-authority=/var/lib/kubernetes/ca.pem \
-#--tls-cert-file=/var/lib/kubernetes/kubernetes.pem \
-#--tls-private-key-file=/var/lib/kubernetes/kubernetes-key.pem \
-#--service-account-key-file=/var/lib/kubernetes/kubernetes-key.pem \
+
 #  --admission-control=NamespaceLifecycle,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota \
