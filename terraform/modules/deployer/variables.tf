@@ -31,3 +31,7 @@ variable "iam_instance_profile_id" {
 variable "region" {
  default = ""
 }
+
+variable "cluster_name" {
+ default = ""
+}

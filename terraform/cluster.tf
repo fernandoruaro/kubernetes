@@ -254,6 +254,7 @@ module "deployer" {
     iam_instance_profile_id = "${aws_iam_instance_profile.kubernetes.id}"
     control_cidr = "${var.control_cidr}"
     region = "${var.region}"
+    cluster_name = "${var.cluster_name}"
 }
 
 
