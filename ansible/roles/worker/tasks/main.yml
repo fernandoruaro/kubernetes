@@ -26,9 +26,11 @@
 # Docker
 #########
 
-- group:
+- name: Adding docker group
+  group:
     name: docker
     state: present
+  become: true
 
 - name: Download docker binaries
   get_url:
