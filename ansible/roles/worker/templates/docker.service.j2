@@ -4,6 +4,7 @@ Documentation=http://docs.docker.io
 
 [Service]
 ExecStart=/usr/bin/docker daemon \
+  --graph=/mnt/docker \
   --iptables=false \
   --ip-masq=false \
   --host=unix:///var/run/docker.sock \
