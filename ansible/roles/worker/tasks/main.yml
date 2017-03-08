@@ -26,6 +26,10 @@
 # Docker
 #########
 
+- group:
+    name: docker
+    state: present
+
 - name: Download docker binaries
   get_url:
     url: "{{ docker_download_url }}"
