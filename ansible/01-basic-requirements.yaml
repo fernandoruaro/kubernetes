@@ -20,8 +20,21 @@
     newrelic_labels: "kubernetes_cluster:{{ cluster_name }};kubernetes_role:master"
   become: true
 - hosts: worker
+  tasks:
+    - name: Adding docker group
+      group:
+        name: docker
+        state: present
+      become: true
+    - name: Adding ubuntu to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+      become: true
   roles:
     - franklinkim.newrelic
   vars:
     newrelic_labels: "kubernetes_cluster:{{ cluster_name }};kubernetes_role:minion"
+    newrelic_groups: [docker]
   become: true

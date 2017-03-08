@@ -26,19 +26,6 @@
 # Docker
 #########
 
-- name: Adding docker group
-  group:
-    name: docker
-    state: present
-  become: true
-
-- name: Adding ubuntu to docker group
-  user:
-    name: ubuntu
-    groups: docker
-    append: yes
-  become: true
-
 - name: Download docker binaries
   get_url:
     url: "{{ docker_download_url }}"

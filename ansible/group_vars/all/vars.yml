@@ -11,4 +11,3 @@ etcd_version: "2.3.8"
 newrelic_service_state: started
 newrelic_disable_docker: false
 ansible_os_family: Debian
-newrelic_groups: [docker]
