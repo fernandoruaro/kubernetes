@@ -32,6 +32,7 @@
         groups: docker
         append: yes
       become: true
+- hosts: worker
   roles:
     - franklinkim.newrelic
   vars:
