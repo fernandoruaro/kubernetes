@@ -29,6 +29,10 @@
   file: path=/mnt/docker state=directory
   become: true
 
+- name: Creates docker symlinked directory
+  file: path=/var/lib/docker/ state=directory
+  become: true
+
 - name: Create symlink between /var/lib/docker/ and /mnt/docker
   file: path=/var/lib/docker/ 
         src=/mnt/docker
