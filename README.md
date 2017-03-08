@@ -202,6 +202,20 @@ cat > kubernetes-csr.json <<EOF
     
     "172.100.10.149",
     "ip-172-100-10-149",
+
+    "172.100.9.73",
+    "ip-172-100-9-73",
+
+    "172.100.36.96",
+    "ip-172-100-36-96",
+
+    "172.100.19.14",
+    "ip-172-100-19-14",
+
+    "172.100.12.243",
+    "ip-172-100-12-243",
+
+    "*.ec2.internal",
     
     "internal-tf-master-kube-01-1131071443.us-east-1.elb.amazonaws.com"
   ],
@@ -234,10 +248,24 @@ cfssl gencert \
 
 
 ------------------------------------------------
-DEPLOY
 
-mkdir secrets
+GENERATE SECRETS
 
-COMMAND="kubectl create secret generic env-secrets "$(for x in `ls $1`; do echo -ne "--from-file=$x=$x "; done)
-kubectl delete secret env-secrets
-sh -c ${COMMAND}
+
+SECRETS_BUCKET=secrets-kube-01
+SECRETS_FOLDER=secrets
+ENV=staging
+
+
+aws s3 cp s3://${SECRETS_BUCKET} ${SECRETS_FOLDER} --recursive
+
+cd ${SECRETS_FOLDER}/${ENV}
+
+for secret in `ls`; do 
+	command="kubectl create secret generic ${secret} "$(for x in `ls $secret`; do echo -ne "--from-file=$x=$secret/$x "; done)
+	kubectl delete secret ${secret} --ignore-not-found
+	echo ${command}
+	${command}
+done
+
+cd ../../
