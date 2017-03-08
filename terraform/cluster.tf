@@ -265,6 +265,7 @@ module "minion" {
     subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
     azs = "${var.availability_zones}"
     security_group_id = "${aws_security_group.kubernetes.id}"
+    iam_instance_profile_id = "${aws_iam_instance_profile.kubernetes.id}"
     region = "${var.region}"
     instance_type = "${var.minion_instance_type}"
 }
