@@ -18,7 +18,7 @@ ExecStart=/usr/bin/kubelet \
   --kubeconfig=/var/lib/kubelet/kubeconfig \
   --reconcile-cidr=true \
   --serialize-image-pulls=false \
-  --v=2 \
+  --v=4 \
   --"node-labels=failure-domain.beta.kubernetes.io/zone={{ hostvars[inventory_hostname].ec2_placement }},beta.kubernetes.io/instance-type={{ hostvars[inventory_hostname].ec2_instance_type }}"
  
 Restart=on-failure
