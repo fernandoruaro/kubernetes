@@ -34,7 +34,7 @@
   become: true
 
 - name: Create symlink between /var/lib/docker/ and /mnt/docker
-  file: path=/var/lib/docker/ 
+  file: path=/var/lib/docker
         src=/mnt/docker
         state=link 
         force=yes
