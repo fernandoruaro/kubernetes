@@ -16,6 +16,8 @@ ExecStart=/usr/bin/kubelet \
   --network-plugin=kubenet \
   --kubeconfig=/var/lib/kubelet/kubeconfig \
   --reconcile-cidr=true \
+  --tls-cert-file=/var/lib/kubernetes/kubernetes.pem \
+  --tls-private-key-file=/var/lib/kubernetes/kubernetes-key.pem \
   --serialize-image-pulls=false \
   --v=2 \
   --"node-labels=failure-domain.beta.kubernetes.io/zone={{ hostvars[inventory_hostname].ec2_placement }},beta.kubernetes.io/instance-type={{ hostvars[inventory_hostname].ec2_instance_type }}"
@@ -28,7 +30,5 @@ WantedBy=multi-user.target
 
 
 
-#  --tls-cert-file=/var/lib/kubernetes/kubernetes.pem \
-#  --tls-private-key-file=/var/lib/kubernetes/kubernetes-key.pem \
-#  --configure-cbr0=true \
+
   
