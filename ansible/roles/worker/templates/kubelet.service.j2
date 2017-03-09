@@ -7,6 +7,7 @@ Requires=docker.service
 [Service]
 ExecStart=/usr/bin/kubelet \
   --allow-privileged=true \
+  --api-servers={% for node in groups['controller'] %}http://{{ hostvars[node].ec2_private_ip_address }}:8080{% if not loop.last %},{% endif %}{% endfor %} \
   --cloud-provider= \
   --cluster-dns={{ kubernetes_cluster_dns }} \
   --cluster-domain=cluster.local \
@@ -30,4 +31,4 @@ WantedBy=multi-user.target
 #  --tls-cert-file=/var/lib/kubernetes/kubernetes.pem \
 #  --tls-private-key-file=/var/lib/kubernetes/kubernetes-key.pem \
 #  --configure-cbr0=true \
-#   --api-servers={% for node in groups['controller'] %}http://{{ hostvars[node].ec2_private_ip_address }}:8080{% if not loop.last %},{% endif %}{% endfor %} \
+  
