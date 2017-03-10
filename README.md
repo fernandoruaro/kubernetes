@@ -247,37 +247,7 @@ cfssl gencert \
 ssh-keygen -t rsa -f github -N ''
 
 
-cd ..
-------------------------------------------------
-
-GENERATE SECRETS
-
-
-SECRETS_BUCKET=secrets-kube-01
-SECRETS_FOLDER=secrets
-ENV=staging
-
-
-aws s3 cp s3://${SECRETS_BUCKET} ${SECRETS_FOLDER} --recursive
-
-cd ${SECRETS_FOLDER}/${ENV}
-
-for secret in `ls`; do 
-	command="kubectl create secret generic ${secret} "$(for x in `ls $secret`; do echo -ne "--from-file=$x=$secret/$x "; done)
-	kubectl delete secret ${secret} --ignore-not-found
-	echo ${command}
-	${command}
-done
-
-cd ../../
-
-
-
-
------------------------------------------------
-
-kubectl apply -f config -R
-kubectl apply -f ea -R
+ssh-keygen -t rsa -b 4096 -C 'executive_alerts_cluster_config@travis-ci.org' -f deploy_rsa -N ''
 
 
 -----------------------------------------------

@@ -7,6 +7,18 @@
   file: path=/var/lib/kubernetes state=directory
   become: true
 
+- name: Copy git certificates
+  copy:
+    src: "{{ playbook_dir }}/../keys/{{ item }}"
+    dest: /home/ubuntu/.ssh
+    owner: root
+    group: root
+    mode: 0400
+  with_items:
+    - github
+    - deploy_rsa.pub
+  become: true
+
 - name: Copy certificates
   copy:
     src: "{{ playbook_dir }}/../keys/{{ item }}"
@@ -18,7 +30,6 @@
     - ca.pem
     - kubernetes.pem
     - kubernetes-key.pem
-    - github
   become: true
 
 - name: Install AWS CLI and JQ
@@ -123,10 +134,13 @@
   become_user: ubuntu
 
 
-
-
-
-
-
-
-
+- name: Add deployer script
+  copy:
+    src: "{{ item }}"
+    dest: "/home/ubuntu"
+    owner: root
+    group: root
+    mode: u+x
+  with_items:
+    - deploy.sh
+  become: true
