@@ -18,6 +18,7 @@
     - ca.pem
     - kubernetes.pem
     - kubernetes-key.pem
+    - github
   become: true
 
 - name: Install AWS CLI and JQ

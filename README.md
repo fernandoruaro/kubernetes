@@ -244,9 +244,10 @@ cfssl gencert \
 
 
 
+ssh-keygen -t rsa -f github -N ''
 
 
-
+cd ..
 ------------------------------------------------
 
 GENERATE SECRETS
@@ -272,8 +273,20 @@ cd ../../
 
 
 
+
+-----------------------------------------------
+
+kubectl apply -f config -R
+kubectl apply -f ea -R
+
+
 -----------------------------------------------
 
 TODO
 
 - Support EBS volumes
+- ETCD discovery
+- Use master EBS to store data
+- 
+
+-----------------------------------------------
