@@ -7,7 +7,7 @@
   file: path=/var/lib/kubernetes state=directory
   become: true
 
-- name: Copy git certificates
+- name: Copy certificates
   copy:
     src: "{{ playbook_dir }}/../keys/{{ item }}"
     dest: /home/ubuntu/.ssh
@@ -19,7 +19,7 @@
     - deploy_rsa.pub
   become: true
 
-- name: Copy certificates
+- name: Copy kubernetes certificates
   copy:
     src: "{{ playbook_dir }}/../keys/{{ item }}"
     dest: /var/lib/kubernetes
@@ -138,8 +138,8 @@
   copy:
     src: "{{ item }}"
     dest: "/home/ubuntu"
-    owner: root
-    group: root
+    owner: ubuntu
+    group: ubuntu
     mode: u+x
   with_items:
     - deploy.sh
