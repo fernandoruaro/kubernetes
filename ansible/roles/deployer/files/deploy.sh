@@ -1,51 +1,134 @@
 #!/bin/bash
-set -e
 
-ENV=$1
-echo "Deploying $ENV"
+log_info () {
+  echo "[$(date)] ${1}"
+}
 
+main () {
+  set -e
+  set -u
 
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/github
+  enviroment=${ENV:-staging}
+  secrets_bucket=${SECRETS_BUCKET:-secrets-kube-01}
+  secrets_path="${HOME}/deploy/${enviroment}/secrets"
+  github_org=${GITHUB_ORG:-meltwater}
+  github_repo=${GITHUB_REPO:-executive_alerts_cluster_config}
+  repo_path="${HOME}/deploy/${enviroment}/${github_repo}"
+  repo_secrets_path="${repo_path}/secrets"
 
-
-rm -rf executive_alerts_cluster_config
-git clone -b "deploy-$ENV" git@github.com:meltwater/executive_alerts_cluster_config.git
-
-cd executive_alerts_cluster_config
-
-
-SECRETS_BUCKET=secrets-kube-01
-SECRETS_FOLDER=secrets
-
-
-if [ ! $(kubectl get namespaces -o name | grep "namespace/staging") ]; then
-  kubectl create namespace $ENV
-fi
-
-
-
-aws s3 cp s3://${SECRETS_BUCKET} ${SECRETS_FOLDER} --recursive
-
-cd ${SECRETS_FOLDER}/${ENV}
-for secret in `ls`; do 
-  command="kubectl create secret generic ${secret} --namespace=$ENV "$(for x in `ls $secret`; do echo -ne "--from-file=$x=$secret/$x "; done)
-  kubectl delete secret ${secret} --ignore-not-found --namespace=$ENV
-  echo ${command}
-  ${command}
-done
+  log_info "Deploying ${enviroment}."
+  clone_repo $enviroment $github_org $github_repo $repo_path
+  fetch_secrets $enviroment $secrets_bucket $secrets_path
+  check_secrets $secrets_path $repo_secrets_path
+  create_namespace $enviroment
+  apply_secrets $enviroment $secrets_path
+  apply_config $enviroment $repo_path
+  cleanup $repo_path $secrets_path
+  log_info "Deployed ${enviroment}."
+}
 
 
-cd ../../ 
-rm -rf ${SECRETS_FOLDER}/${ENV}
+clone_repo () {
+  enviroment=$1
+  org=$2
+  repo=$3
+  repo_path=$4
+  branch="deploy-${enviroment}"
+  ssh_key="${HOME}/.ssh/github"
+  repo_url="git@github.com:${org}/${repo}.git"
+  travis_file="${repo_path}/.travis.yml"
 
+  log_info "Adding ssh key ${ssh_key} to ssh-agent."
+  eval "$(ssh-agent -s)"
+  ssh-add $ssh_key
 
-kubectl apply -f config/ea-config.yaml -R --namespace=$ENV
-kubectl apply -f ea -R --namespace=$ENV
+  log_info "Removing ${repo_path}"
+  rm -rf $repo_path
 
-cd ..
+  log_info "Cloning ${repo_url}#${branch} to ${repo_path}."
+  echo
+  git clone --branch $branch --depth 2 $repo_url $repo_path
+  echo
 
-rm -rf executive_alerts_cluster_config/
+  log_info "Deploying this commit:"
+  echo
+  (cd $repo_path && git --no-pager log -1)
+  echo
 
+  log_info "Removing ${travis_file}."
+  rm -rf $travis_file
+}
 
-kubectl get pods --namespace=$ENV
+fetch_secrets () {
+  enviroment=$1
+  bucket=$2
+  secrets_path=$3
+  bucket_path="s3://${bucket}/${enviroment}"
+
+  log_info "Removing ${secrets_path}."
+  rm -rf $secrets_path
+
+  log_info "Creating ${secrets_path}."
+  mkdir -p $secrets_path
+
+  log_info "Fetching secrets from ${bucket_path} to ${secrets_path}."
+  echo
+  aws s3 cp --recursive $bucket_path $secrets_path
+  echo
+}
+
+check_secrets () {
+  secrets_path=$1
+  repo_secrets_path=$2
+  secrets_list="${HOME}/deploy/${enviroment}-secrets.txt"
+  repo_secrets_list="${HOME}/deploy/${enviroment}-repo-secrets.txt"
+
+  log_info "Checking list of required secrets in ${repo_secrets_path} is identical to ${secrets_path}."
+  (cd $secrets_path && find . -type f > $secrets_list)
+  (cd $repo_secrets_path && find . -type f > $repo_secrets_list)
+  echo
+  diff $secrets_list $repo_secrets_list
+  echo
+  rm -rf $secrets_list $repo_secrets_list
+
+  log_info "Removing ${repo_secrets_path}."
+  rm -rf $repo_secrets_path
+}
+
+create_namespace () {
+  enviroment=$1
+  kubectl get namespace ${enviroment} || kubectl create namespace $enviroment
+}
+
+apply_secrets () {
+  enviroment=$1
+  secrets_path=$2
+
+  log_info "Creating all Kubernetes secrets for namespace ${enviroment} from files in ${secrets_path}."
+
+  (cd $secrets_path \
+    && find * -type d -exec kubectl create secret generic --namespace=$enviroment {} --from-file={} \;)
+}
+
+apply_config () {
+  enviroment=$1
+  repo_path=$2
+
+  log_info "Applying Kubernetes configuration for namespace ${enviroment} in ${repo_path}."
+  echo
+  kubectl apply --namespace=$enviroment --recursive --filename $repo_path
+  echo
+}
+
+cleanup () {
+  repo_path=$1
+  secrets_path=$2
+
+  log_info "Removing ${repo_path}."
+  rm -rf $repo_path
+
+  log_info "Removing ${secrets_path}."
+  rm -rf $secrets_path
+}
+
+main $1 $2
