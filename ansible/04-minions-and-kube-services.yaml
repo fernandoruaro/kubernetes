@@ -5,9 +5,4 @@
   environment:
     AWS_DEFAULT_REGION: "{{ aws_region }}"
   roles:
-    - franklinkim.environment
     - deployer
-  vars:
-    environment_config:
-      SECRETS_BUCKET: "{{ secrets_bucket }}"
-  
