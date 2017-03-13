@@ -70,7 +70,8 @@ resource "aws_instance" "worker" {
 
 resource "aws_volume_attachment" "ebs_att" {
   count = "${var.servers * var.extra_ebs}"
-  device_name = "/dev/sdh${(count.index % var.extra_ebs) + 1}"
+  device_name = "/dev/sdb"
+  type = "${var.extra_ebs_type}"
   volume_id = "${element(aws_ebs_volume.ebs.*.id, count.index)}"
   instance_id = "${element(aws_instance.worker.*.id, count.index / var.extra_ebs)}"
 }

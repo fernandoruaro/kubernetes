@@ -39,7 +39,11 @@ variable "role" {
 }
 
 variable "extra_ebs" {
- default = 0
+ default = 0 # 1 or 0
+}
+
+variable "extra_ebs_type" {
+ default = "gp2"
 }
 
 variable "extra_ebs_size" {
