@@ -8,7 +8,7 @@ main () {
   set -e
   set -u
 
-  enviroment=${ENV:-staging}
+  enviroment=${1:-staging}
   secrets_bucket=${SECRETS_BUCKET:-secrets-kube-01}
   secrets_path="${HOME}/deploy/${enviroment}/secrets"
   github_org=${GITHUB_ORG:-meltwater}
@@ -131,4 +131,4 @@ cleanup () {
   rm -rf $secrets_path
 }
 
-main $1 $2
+main ${1:-$DEPLOY_ENV}
