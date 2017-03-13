@@ -395,9 +395,9 @@ variable "webapp_port" { default = "30020" }
 
 
 resource "aws_security_group" "k8s_lb_inbound" {
-  name = "k8s_lb_inbound"
+  name = "k8s_inbound"
   description = "Allow inbound traffic for kubernetes load balancers"
-  vpc_id = "${aws_vpc.vpc.id}"
+  vpc_id = "${aws_vpc.kubernetes.id}"
   ingress {
       from_port = 80
       to_port = 80
