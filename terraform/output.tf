@@ -33,3 +33,7 @@ output "cluster_name" {
 output secrets_bucket {
   value = "${module.deployer.secrets_bucket}"
 }
+
+output "subnet_ids" {
+	value = ["${aws_subnet.kubernetes.*.id}"]
+}
