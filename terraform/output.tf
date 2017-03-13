@@ -49,3 +49,7 @@ output "iam_instance_profile_id" {
 output "key_name" {
 	value = "${aws_key_pair.kubernetes.key_name}"
 }
+
+output "vpc_id" {
+  value = "${aws_vpc.kubernetes.id}"
+}
