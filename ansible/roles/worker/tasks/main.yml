@@ -22,19 +22,6 @@
   become: true
 
 
-###########
-# EBS MOUNT
-###########
-
-- name: Mount up extra EBS
-  mount:
-    path: /external_ebs
-    src: /dev/sdf
-    fstype: ext4
-    state: present
-
-
-
 #########
 # Docker
 #########
