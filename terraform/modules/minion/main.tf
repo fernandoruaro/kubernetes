@@ -43,6 +43,7 @@ module "ami" {
 resource "aws_ebs_volume" "ebs" {
   count = "${var.servers * var.extra_ebs}"
   availability_zone = "${element(var.azs, count.index / var.extra_ebs)}"
+  type = "${var.extra_ebs_type}"
   size = "${var.extra_ebs_size}"
 }
 
@@ -71,7 +72,6 @@ resource "aws_instance" "worker" {
 resource "aws_volume_attachment" "ebs_att" {
   count = "${var.servers * var.extra_ebs}"
   device_name = "/dev/sdb"
-  type = "${var.extra_ebs_type}"
   volume_id = "${element(aws_ebs_volume.ebs.*.id, count.index)}"
   instance_id = "${element(aws_instance.worker.*.id, count.index / var.extra_ebs)}"
 }
