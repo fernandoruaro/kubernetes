@@ -40,6 +40,11 @@ module "ami" {
 #}
 
 
+resource "aws_ebs_volume" "ebs" {
+  count = "${var.servers * var.extra_ebs}"
+  availability_zone = "${element(var.azs, count.index / var.extra_ebs)}"
+  size = "${var.extra_ebs_size}"
+}
 
 
 resource "aws_instance" "worker" {
@@ -61,4 +66,11 @@ resource "aws_instance" "worker" {
     Name = "kube-minion"
     minion_role = "${var.role}"
   }
+}
+
+resource "aws_volume_attachment" "ebs_att" {
+  count = "${var.servers * var.extra_ebs}"
+  device_name = "/dev/sdh${(count.index % var.extra_ebs) + 1}"
+  volume_id = "${element(aws_ebs_volume.ebs.id, count.index)}"
+  instance_id = "${element(aws_ebs_volume.ebs.id, count.index / var.extra_ebs)}"
 }

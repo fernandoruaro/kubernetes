@@ -37,3 +37,11 @@ variable "iam_instance_profile_id" {
 variable "role" {
  default = "default"
 }
+
+variable "extra_ebs" {
+ default = 0
+}
+
+variable "extra_ebs_size" {
+ default = 0
+}

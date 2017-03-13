@@ -271,6 +271,24 @@ module "minion" {
 }
 
 
+module "minion_elasticsearch" {
+    source = "./modules/minion"
+
+    role = "elasticsearch"
+    extra_ebs = "1"
+    extra_ebs_size = 10
+    key_name = "${aws_key_pair.kubernetes.key_name}"
+    servers = "${var.minion_count}"
+    subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
+    azs = "${var.availability_zones}"
+    security_group_id = "${aws_security_group.kubernetes.id}"
+    iam_instance_profile_id = "${aws_iam_instance_profile.kubernetes.id}"
+    region = "${var.region}"
+    instance_type = "${var.minion_instance_type}"
+}
+
+
+
 module "deployer" {
     source = "./modules/deployer"
 
