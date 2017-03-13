@@ -45,3 +45,7 @@ output "security_group_id" {
 output "iam_instance_profile_id" {
 	value = "${aws_iam_instance_profile.kubernetes.id}"
 }
+
+output "key_name" {
+	value = "${aws_key_pair.kubernetes.key_name}"
+}
