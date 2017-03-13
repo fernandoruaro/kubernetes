@@ -415,7 +415,7 @@ resource "aws_security_group" "k8s_lb_inbound" {
 
 
 resource "aws_elb" "k8s-ea-webapp-s" {
-  name = "k8s-${var.env}-ea-webapp-s"
+  name = "ea-webapp-s"
   listener {
     instance_port = "${var.webapp_port}"
     instance_protocol = "tcp"
@@ -448,7 +448,7 @@ resource "aws_elb" "k8s-ea-webapp-s" {
 }
 
 resource "aws_elb" "k8s-ea-admin-s" {
-  name = "k8s-${var.env}-ea-admin-s"
+  name = "ea-admin-s"
   listener {
     instance_port = "${var.app_port}"
     instance_protocol = "tcp"
@@ -481,7 +481,7 @@ resource "aws_elb" "k8s-ea-admin-s" {
 
 
 resource "aws_elb" "k8s-ea-api-s" {
-  name = "k8s-${var.env}-ea-api-s"
+  name = "ea-api-s"
   listener {
     instance_port = "${var.app_port}"
     instance_protocol = "tcp"
@@ -513,7 +513,7 @@ resource "aws_elb" "k8s-ea-api-s" {
 }
 
 resource "aws_elb" "k8s-ea-oauth-s" {
-  name = "k8s-${var.env}-ea-oauth-s"
+  name = "ea-oauth-s"
   listener {
     instance_port = "${var.app_port}"
     instance_protocol = "tcp"
