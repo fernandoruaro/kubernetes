@@ -271,24 +271,6 @@ module "minion" {
 }
 
 
-module "minion_elasticsearch" {
-    source = "./modules/minion"
-
-    role = "elasticsearch"
-    extra_ebs = "1"
-    extra_ebs_size = 10
-    key_name = "${aws_key_pair.kubernetes.key_name}"
-    servers = 2
-    subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
-    azs = "${var.availability_zones}"
-    security_group_id = "${aws_security_group.kubernetes.id}"
-    iam_instance_profile_id = "${aws_iam_instance_profile.kubernetes.id}"
-    region = "${var.region}"
-    instance_type = "${var.minion_instance_type}"
-}
-
-
-
 module "deployer" {
     source = "./modules/deployer"
 
@@ -387,4 +369,177 @@ output "cluster_name" {
 
 output secrets_bucket {
   value = "${module.deployer.secrets_bucket}"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#########################
+# TEMPORARY EA
+#########################
+
+
+variable "app_port" { default = "30000" }
+variable "webapp_port" { default = "30020" }
+
+
+resource "aws_security_group" "k8s_lb_inbound" {
+  name = "k8s_lb_inbound"
+  description = "Allow inbound traffic for kubernetes load balancers"
+  vpc_id = "${aws_vpc.vpc.id}"
+  ingress {
+      from_port = 80
+      to_port = 80
+      protocol = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+      from_port = 443
+      to_port = 443
+      protocol = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+
+
+resource "aws_elb" "k8s-ea-webapp-s" {
+  name = "k8s-${var.env}-ea-webapp-s"
+  listener {
+    instance_port = "${var.webapp_port}"
+    instance_protocol = "tcp"
+    lb_port = 80
+    lb_protocol = "tcp"
+  }
+  listener {
+    instance_port = "${var.webapp_port}"
+    instance_protocol = "tcp"
+    lb_port = 443
+    lb_protocol = "ssl"
+    #*.feed.encorealert.com
+    ssl_certificate_id = "arn:aws:acm:us-east-1:690009054360:certificate/21b90f0f-8ae7-4ac5-aef6-4510e33e0b78"
+  }
+  security_groups = ["${aws_security_group.k8s_lb_inbound.id}","${aws_security_group.kubernetes.id}"]
+  subnets = ["${aws_subnet.kubernetes.*.id}"]
+  health_check {
+    healthy_threshold = 2
+    unhealthy_threshold = 6
+    timeout = 5
+    target = "TCP:${var.webapp_port}"
+    interval = 10
+  }
+  cross_zone_load_balancing = false
+  idle_timeout = 400
+  connection_draining = false
+
+  instances = "${module.minion.instances}"
+
+}
+
+resource "aws_elb" "k8s-ea-admin-s" {
+  name = "k8s-${var.env}-ea-admin-s"
+  listener {
+    instance_port = "${var.app_port}"
+    instance_protocol = "tcp"
+    lb_port = 80
+    lb_protocol = "tcp"
+  }
+  listener {
+    instance_port = "${var.app_port}"
+    instance_protocol = "tcp"
+    lb_port = 443
+    lb_protocol = "ssl"
+    # *.admin.encorealert.com
+    ssl_certificate_id = "arn:aws:acm:us-east-1:690009054360:certificate/2f69ce02-e496-4d16-a5de-b2c56d5d2624"
+  }
+  security_groups = ["${aws_security_group.k8s_lb_inbound.id}","${aws_security_group.kubernetes.id}"]
+  subnets = ["${aws_subnet.kubernetes.*.id}"]
+  health_check {
+    healthy_threshold = 2
+    unhealthy_threshold = 6
+    timeout = 5
+    target = "TCP:${var.app_port}"
+    interval = 10
+  }
+  cross_zone_load_balancing = false
+  idle_timeout = 400
+  connection_draining = false
+
+  instances = "${module.minion.instances}"
+}
+
+
+resource "aws_elb" "k8s-ea-api-s" {
+  name = "k8s-${var.env}-ea-api-s"
+  listener {
+    instance_port = "${var.app_port}"
+    instance_protocol = "tcp"
+    lb_port = 80
+    lb_protocol = "tcp"
+  }
+  listener {
+    instance_port = "${var.app_port}"
+    instance_protocol = "tcp"
+    lb_port = 443
+    lb_protocol = "ssl"
+    #*.api.encorealert.com
+    ssl_certificate_id = "arn:aws:acm:us-east-1:690009054360:certificate/725715f2-5a35-40eb-858a-e85988e2eb02"
+  }
+  security_groups = ["${aws_security_group.k8s_lb_inbound.id}","${aws_security_group.kubernetes.id}"]
+  subnets = ["${aws_subnet.kubernetes.*.id}"]
+  health_check {
+    healthy_threshold = 2
+    unhealthy_threshold = 6
+    timeout = 5
+    target = "TCP:${var.app_port}"
+    interval = 10
+  }
+  cross_zone_load_balancing = false
+  idle_timeout = 400
+  connection_draining = false
+
+  instances = "${module.minion.instances}"
+}
+
+resource "aws_elb" "k8s-ea-oauth-s" {
+  name = "k8s-${var.env}-ea-oauth-s"
+  listener {
+    instance_port = "${var.app_port}"
+    instance_protocol = "tcp"
+    lb_port = 80
+    lb_protocol = "tcp"
+  }
+  listener {
+    instance_port = "${var.app_port}"
+    instance_protocol = "tcp"
+    lb_port = 443
+    lb_protocol = "ssl"
+    #*.oauth.encorealert.com
+    ssl_certificate_id = "arn:aws:acm:us-east-1:690009054360:certificate/a8aabe3c-c9a1-4da6-8186-4f0023f743a5"
+  }
+  security_groups = ["${aws_security_group.k8s_lb_inbound.id}","${aws_security_group.kubernetes.id}"]
+  subnets = ["${aws_subnet.kubernetes.*.id}"]
+  health_check {
+    healthy_threshold = 2
+    unhealthy_threshold = 6
+    timeout = 5
+    target = "TCP:${var.app_port}"
+    interval = 10
+  }  
+  cross_zone_load_balancing = false
+  idle_timeout = 400
+  connection_draining = false
+
+  instances = "${module.minion.instances}"
 }
