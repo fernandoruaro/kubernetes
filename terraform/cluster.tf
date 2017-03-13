@@ -278,7 +278,7 @@ module "minion_elasticsearch" {
     extra_ebs = "1"
     extra_ebs_size = 10
     key_name = "${aws_key_pair.kubernetes.key_name}"
-    servers = "${var.minion_count}"
+    servers = 2
     subnet_ids = ["${aws_subnet.kubernetes.*.id}"]
     azs = "${var.availability_zones}"
     security_group_id = "${aws_security_group.kubernetes.id}"
