@@ -25,6 +25,7 @@ main () {
   apply_config $enviroment $repo_path
   cleanup $repo_path $secrets_path
   log_info "Deployed ${enviroment}."
+  get_status $enviroment
 }
 
 
@@ -129,6 +130,22 @@ cleanup () {
 
   log_info "Removing ${secrets_path}."
   rm -rf $secrets_path
+}
+
+get_status () {
+  enviroment=$1
+
+  log_info "Waiting two minutes and then getting pod status."
+  sleep 60
+  log_info "Waiting one minutes and then getting pod status."
+  sleep 50
+  log_info "Waiting 10 seconds then getting pod status."
+  sleep 10
+  echo
+  kubectl describe pods --namespace=$enviroment
+  echo
+  kubectl get pods --namespace=$enviroment
+  echo
 }
 
 main ${1:-$DEPLOY_ENV}
