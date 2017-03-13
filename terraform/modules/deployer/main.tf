@@ -19,12 +19,12 @@ resource "aws_security_group" "deployer" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Allow all traffic from control host IP
+
   ingress {
     from_port = 22
     to_port = 22
     protocol = "TCP"
-    cidr_blocks = ["${var.control_cidr}"]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags {
