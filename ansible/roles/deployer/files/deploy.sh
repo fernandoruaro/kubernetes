@@ -137,7 +137,7 @@ get_status () {
 
   log_info "Waiting two minutes and then getting pod status."
   sleep 60
-  log_info "Waiting one minutes and then getting pod status."
+  log_info "Waiting one minute and then getting pod status."
   sleep 50
   log_info "Waiting 10 seconds then getting pod status."
   sleep 10
