@@ -109,7 +109,6 @@ apply_secrets () {
 
   (cd $secrets_path \
     && find * -type d -exec \
-      kubectl --namespace=$enviroment get secret {} || \
       kubectl --namespace=$enviroment delete secret {} \; \
     && find * -type d -exec \
       kubectl --namespace=$enviroment create secret generic {} --from-file={} \;)
