@@ -9,6 +9,16 @@ main () {
   set -u
 
   enviroment=${1:-staging}
+  branch_env=$enviroment
+
+  if [[ $enviroment = 'default-production' ]]; then
+    $enviroment=default
+  fi
+
+  if [[ $enviroment = 'default-staging' ]]; then
+    $enviroment=default
+  fi
+
   secrets_bucket=${SECRETS_BUCKET:-secrets-kube-01}
   secrets_path="${HOME}/deploy/${enviroment}/secrets"
   github_org=${GITHUB_ORG:-meltwater}
@@ -17,7 +27,8 @@ main () {
   repo_secrets_path="${repo_path}/secrets"
 
   log_info "Deploying ${enviroment}."
-  clone_repo $enviroment $github_org $github_repo $repo_path
+  clone_repo $branch_env $github_org $github_repo $repo_path
+
   fetch_secrets $enviroment $secrets_bucket $secrets_path
   check_secrets $secrets_path $repo_secrets_path
   create_namespace $enviroment
