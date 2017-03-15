@@ -13,11 +13,11 @@ main () {
   branch_env=$enviroment
 
   if [[ $enviroment = 'default-production' ]]; then
-    $enviroment=default
+    enviroment=default
   fi
 
   if [[ $enviroment = 'default-staging' ]]; then
-    $enviroment=default
+    enviroment=default
   fi
 
   secrets_bucket=${SECRETS_BUCKET:-secrets-kube-01}
