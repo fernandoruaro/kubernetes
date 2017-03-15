@@ -108,7 +108,11 @@ apply_secrets () {
   log_info "Creating all Kubernetes secrets for namespace ${enviroment} from files in ${secrets_path}."
 
   (cd $secrets_path \
-    && find * -type d -exec kubectl create secret generic --namespace=$enviroment {} --from-file={} \;)
+    && find * -type d -exec \
+      kubectl --namespace=$enviroment get secret {} || \
+      kubectl --namespace=$enviroment delete secret {} \; \
+    && find * -type d -exec \
+      kubectl --namespace=$enviroment create secret generic {} --from-file={} \;)
 }
 
 apply_config () {
@@ -142,9 +146,9 @@ get_status () {
   log_info "Waiting 10 seconds then getting pod status."
   sleep 10
   echo
-  kubectl describe pods --namespace=$enviroment
+  kubectl --namespace=$enviroment describe pods
   echo
-  kubectl get pods --namespace=$enviroment
+  kubectl --namespace=$enviroment get pods
   echo
 }
 
