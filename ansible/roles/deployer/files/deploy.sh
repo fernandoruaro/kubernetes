@@ -24,10 +24,10 @@ main () {
   apply_secrets $enviroment $secrets_path
   apply_config $enviroment $repo_path
   cleanup $repo_path $secrets_path
+
   log_info "Deployed ${enviroment}."
   get_status $enviroment
 }
-
 
 clone_repo () {
   enviroment=$1
@@ -137,13 +137,10 @@ cleanup () {
 
 get_status () {
   enviroment=$1
+  wait=$2
 
-  log_info "Waiting two minutes and then getting pod status."
-  sleep 60
-  log_info "Waiting one minute and then getting pod status."
-  sleep 50
-  log_info "Waiting 10 seconds then getting pod status."
-  sleep 10
+  log_info "Waiting ${wait} seconds to get pod status."
+  sleep $wait
   echo
   kubectl --namespace=$enviroment describe pods
   echo
@@ -151,4 +148,4 @@ get_status () {
   echo
 }
 
-main ${1:-$DEPLOY_ENV}
+main ${1:-$DEPLOY_ENV} ${2:-120}
