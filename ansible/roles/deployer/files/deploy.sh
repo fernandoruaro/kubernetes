@@ -9,6 +9,7 @@ main () {
   set -u
 
   enviroment=${1:-staging}
+  delay=${2:-5}
   branch_env=$enviroment
 
   if [[ $enviroment = 'default-production' ]]; then
@@ -37,7 +38,7 @@ main () {
   cleanup $repo_path $secrets_path
 
   log_info "Deployed ${enviroment}."
-  get_status $enviroment
+  get_status $enviroment $delay
 }
 
 clone_repo () {
@@ -159,4 +160,4 @@ get_status () {
   echo
 }
 
-main ${1:-$DEPLOY_ENV} ${2:-120}
+main ${1:-$DEPLOY_ENV} ${2:-$DEPLOY_DELAY}
