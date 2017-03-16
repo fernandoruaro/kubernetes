@@ -9,6 +9,17 @@ main () {
   set -u
 
   enviroment=${1:-staging}
+  delay=${2:-5}
+  branch_env=$enviroment
+
+  if [[ $enviroment = 'default-production' ]]; then
+    enviroment=default
+  fi
+
+  if [[ $enviroment = 'default-staging' ]]; then
+    enviroment=default
+  fi
+
   secrets_bucket=${SECRETS_BUCKET:-secrets-kube-01}
   secrets_path="${HOME}/deploy/${enviroment}/secrets"
   github_org=${GITHUB_ORG:-meltwater}
@@ -17,17 +28,18 @@ main () {
   repo_secrets_path="${repo_path}/secrets"
 
   log_info "Deploying ${enviroment}."
-  clone_repo $enviroment $github_org $github_repo $repo_path
+  clone_repo $branch_env $github_org $github_repo $repo_path
+
   fetch_secrets $enviroment $secrets_bucket $secrets_path
   check_secrets $secrets_path $repo_secrets_path
   create_namespace $enviroment
   apply_secrets $enviroment $secrets_path
   apply_config $enviroment $repo_path
   cleanup $repo_path $secrets_path
-  log_info "Deployed ${enviroment}."
-  get_status $enviroment
-}
 
+  log_info "Deployed ${enviroment}."
+  get_status $enviroment $delay
+}
 
 clone_repo () {
   enviroment=$1
@@ -108,7 +120,10 @@ apply_secrets () {
   log_info "Creating all Kubernetes secrets for namespace ${enviroment} from files in ${secrets_path}."
 
   (cd $secrets_path \
-    && find * -type d -exec kubectl create secret generic --namespace=$enviroment {} --from-file={} \;)
+    && find * -type d -exec \
+      kubectl --namespace=$enviroment delete secret {} \; \
+    && find * -type d -exec \
+      kubectl --namespace=$enviroment create secret generic {} --from-file={} \;)
 }
 
 apply_config () {
@@ -134,18 +149,15 @@ cleanup () {
 
 get_status () {
   enviroment=$1
+  wait=$2
 
-  log_info "Waiting two minutes and then getting pod status."
-  sleep 60
-  log_info "Waiting one minutes and then getting pod status."
-  sleep 50
-  log_info "Waiting 10 seconds then getting pod status."
-  sleep 10
+  log_info "Waiting ${wait} seconds to get pod status."
+  sleep $wait
   echo
-  kubectl describe pods --namespace=$enviroment
+  kubectl --namespace=$enviroment describe pods
   echo
-  kubectl get pods --namespace=$enviroment
+  kubectl --namespace=$enviroment get pods
   echo
 }
 
-main ${1:-$DEPLOY_ENV}
+main ${1:-$DEPLOY_ENV} ${2:-$DEPLOY_DELAY}
