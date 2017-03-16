@@ -121,7 +121,7 @@ apply_secrets () {
 
   (cd $secrets_path \
     && find * -type d -exec \
-      kubectl --namespace=$enviroment delete secret {} \; \
+      kubectl --namespace=$enviroment delete --ignore-not-found secret {} \; \
     && find * -type d -exec \
       kubectl --namespace=$enviroment create secret generic {} --from-file={} \;)
 }
@@ -133,7 +133,8 @@ apply_config () {
   if [[ $enviroment = 'default' ]]; then
     log_info "Deleting Kubernetes configuration for namespace ${enviroment} in ${repo_path}."
     echo
-    kubectl delete --namespace=$enviroment --recursive --filename $repo_path
+    kubectl delete --namespace=$enviroment \
+      --ignore-not-found --recursive --filename $repo_path
     echo
   fi
 
