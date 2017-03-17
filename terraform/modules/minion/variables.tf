@@ -49,3 +49,7 @@ variable "extra_ebs_type" {
 variable "extra_ebs_size" {
  default = 0
 }
+
+variable "storage_type" {
+ default = "instance-store"
+}

@@ -3,9 +3,8 @@ module "ami" {
   region = "${var.region}"
   distribution = "xenial"
   virttype = "hvm"
-  storagetype = "instance-store"
+  storagetype = "${var.storage_type}"
 }
-
 
 
 #resource "aws_launch_configuration" "default_worker" {
