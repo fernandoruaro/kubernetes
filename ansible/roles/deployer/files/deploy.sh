@@ -42,11 +42,11 @@ main () {
 }
 
 clone_repo () {
-  enviroment=$1
+  branch_env=$1
   org=$2
   repo=$3
   repo_path=$4
-  branch="deploy-${enviroment}"
+  branch="deploy-${branch_env}"
   ssh_key="${HOME}/.ssh/github"
   repo_url="git@github.com:${org}/${repo}.git"
   travis_file="${repo_path}/.travis.yml"
@@ -121,7 +121,7 @@ apply_secrets () {
 
   (cd $secrets_path \
     && find * -type d -exec \
-      kubectl --namespace=$enviroment delete secret {} \; \
+      kubectl --namespace=$enviroment delete --ignore-not-found secret {} \; \
     && find * -type d -exec \
       kubectl --namespace=$enviroment create secret generic {} --from-file={} \;)
 }
@@ -129,6 +129,14 @@ apply_secrets () {
 apply_config () {
   enviroment=$1
   repo_path=$2
+
+  if [[ $enviroment = 'default' ]]; then
+    log_info "Deleting Kubernetes configuration for namespace ${enviroment} in ${repo_path}."
+    echo
+    kubectl delete --namespace=$enviroment \
+      --ignore-not-found --recursive --filename $repo_path
+    echo
+  fi
 
   log_info "Applying Kubernetes configuration for namespace ${enviroment} in ${repo_path}."
   echo
