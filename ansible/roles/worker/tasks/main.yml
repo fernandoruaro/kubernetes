@@ -22,6 +22,25 @@
   become: true
 
 
+#############
+# Mount data volume if needed
+#############
+- stat:
+    path: /dev/nvme0n1
+  register: nvme
+  become: true
+
+
+- stat:
+    path: /data
+  register: data
+  become: true
+
+- name: Mount data directory
+  shell: mkfs -t ext4 /dev/nvme0n1 && mkdir /data && mount /dev/nvme0n1 /data
+  when: nvme.stat.islnk is defined and data.stat.islnk is not defined
+  become: true
+
 #########
 # Docker
 #########
