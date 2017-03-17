@@ -27,7 +27,7 @@ resource "aws_instance" "worker" {
   }
 
   ephemeral_block_device {
-      device_name = "/dev/nvme0n1"
+      device_name = "/dev/sdf"#"/dev/nvme0n1"
       virtual_name = "ephemeral0"
   }
 }
