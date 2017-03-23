@@ -4,7 +4,7 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 ExecStart=/usr/bin/kube-apiserver \
-  --admission-control=NamespaceLifecycle,LimitRanger,SecurityContextDeny,ResourceQuota \
+  --admission-control=NamespaceLifecycle,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota \
   --advertise-address={{ hostvars[inventory_hostname].ec2_private_ip_address }} \
   --allow-privileged=true \
   --apiserver-count=3 \
@@ -31,5 +31,5 @@ WantedBy=multi-user.target
 
 
 
-#  --admission-control=NamespaceLifecycle,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota \
+#  --admission-control=NamespaceLifecycle,LimitRanger,SecurityContextDeny,ResourceQuota \
 #  --kubelet-certificate-authority=/var/lib/kubernetes/ca.pem \

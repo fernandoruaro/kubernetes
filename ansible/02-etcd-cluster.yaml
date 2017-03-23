@@ -1,3 +1,4 @@
 - hosts: etcd
+  serial: 1
   roles:
     - etcd

@@ -1,4 +1,5 @@
 - hosts: worker
+  serial: 1
   roles:
     - worker
 - hosts: deployer
