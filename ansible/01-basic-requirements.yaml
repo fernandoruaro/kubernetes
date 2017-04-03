@@ -16,13 +16,14 @@
     newrelic_labels: "kubernetes_cluster:{{ cluster_name }};kubernetes_role:etcd"
   become: true
 - hosts: controller
+  serial: 1
   roles:
     - franklinkim.newrelic
   vars:
     newrelic_labels: "kubernetes_cluster:{{ cluster_name }};kubernetes_role:master"
   become: true
 - hosts: worker
-  serial: 1
+  serial: 5
   tasks:
     - name: Adding docker group
       group:
@@ -36,7 +37,7 @@
         append: yes
       become: true
 - hosts: worker
-  serial: 1
+  serial: 5
   roles:
     - franklinkim.newrelic
   vars:
