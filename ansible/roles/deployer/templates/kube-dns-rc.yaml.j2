@@ -8,7 +8,7 @@ metadata:
     version: v20
     kubernetes.io/cluster-service: "true"
 spec:
-  replicas: {{ (groups['worker'] | length + 1) / 2 }}
+  replicas: {{ ((groups['worker'] | length + 1) / 2) | int }}
   selector:
     k8s-app: kube-dns
     version: v20
