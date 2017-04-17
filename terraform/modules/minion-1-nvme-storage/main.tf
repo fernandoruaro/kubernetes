@@ -1,14 +1,14 @@
-module "ami" {
-  source = "github.com/terraform-community-modules/tf_aws_ubuntu_ami"
-  region = "${var.region}"
-  distribution = "xenial"
-  virttype = "hvm"
-  storagetype = "ebs-ssd"
-}
+#module "ami" {
+#  source = "github.com/terraform-community-modules/tf_aws_ubuntu_ami"
+#  region = "${var.region}"
+#  distribution = "xenial"
+#  virttype = "hvm"
+#  storagetype = "ebs-ssd"
+#}
 
 resource "aws_instance" "worker" {
   count = "${var.servers}"
-  ami = "${module.ami.ami_id}"
+  ami = "ami-80861296"
   iam_instance_profile = "${var.iam_instance_profile_id}"
   instance_type = "${var.instance_type}"
   subnet_id = "${element(var.subnet_ids, count.index)}"
