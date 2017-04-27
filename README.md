@@ -10,19 +10,19 @@ This project started using this project (https://github.com/nicusX/k8s-terraform
 
 The cluster is separeted in 4 main roles:
 
-**etcd**
+**1. etcd**
  - **What?** It's a key-value database used by Kubernetes master.
  - **Implementation:** A set of instances responsible for running etcd servers that peers with each other. These instances are distributed between different AZ's. 
 
-**master**
+**2. master**
  - **What?** The services needed to manage the Kubernetes cluster: API server, controller manager and scheduler.
  - **Implementation:** Multiple instances distributed in differet AZ's that communicates with the etcd cluster.
  
-**minion**
+**3. minion**
  - **What?** Services needed to run pods on the host: Docker, Kube Proxy and Kubelet.
  - **Implementation:** Multiple instances able to communicate with the master and receive the scheduled pods.
  
-**deployer**
+**4. deployer**
  - **What?** Way for executing `kubectl` commands in the cluster and setting AWS route table according to the minions ip.
  - **Implementation:** Machine that has credentials to access the master and AWS CLI.
  
