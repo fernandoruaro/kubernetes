@@ -64,7 +64,7 @@ spec:
                 - "sh"
                 - "-c"
                 - >
-                  printf "nameserver 8.8.8.8\n" > /etc/resolv.conf
+                  printf "nameserver {{ vpc_dns }}\n" > /etc/resolv.conf
       - name: dnsmasq
         image: gcr.io/google_containers/kube-dnsmasq-amd64:1.4
         livenessProbe:

@@ -53,3 +53,7 @@ output "key_name" {
 output "vpc_id" {
   value = "${aws_vpc.kubernetes.id}"
 }
+
+output "vpc_dns" {
+  value = "${cidrhost(var.vpc_cidr, 2)}"
+}

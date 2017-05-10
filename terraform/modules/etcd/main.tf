@@ -96,18 +96,3 @@ resource "aws_s3_bucket" "backups" {
     bucket = "etcd-bkp-${var.cluster_name}"
     acl = "private"
 }
-
-###############
-# ROUTE 53
-###############
-#resource "aws_route53_zone" "zone" {
-#  name = "aws.encorehq.com"
-#}
-
-#resource "aws_route53_record" "etcd" {
-#  zone_id = "${aws_route53_zone.zone.zone_id}"
-#  name = "etcd.${aws_route53_zone.zone.name}"
-#  type = "CNAME"
-#  records = ["${aws_alb.etcd.dns_name}"]
-#  ttl = 300
-#}
