@@ -10,7 +10,7 @@ module "ami" {
 resource "aws_instance" "controller" {
 
     count = "${var.servers}"
-    ami = "${var.ami_id ? var.ami_id : module.ami.ami_id}"
+    ami = "${var.ami_id != "" ? var.ami_id : module.ami.ami_id}"
     
     instance_type = "${var.instance_type}"
 

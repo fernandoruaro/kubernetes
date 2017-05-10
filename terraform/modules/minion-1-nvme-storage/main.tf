@@ -8,7 +8,7 @@ module "ami" {
 
 resource "aws_instance" "worker" {
   count = "${var.servers}"
-  ami = "${var.ami_id ? var.ami_id : module.ami.ami_id}"
+  ami = "${var.ami_id != "" ? var.ami_id : module.ami.ami_id}"
   iam_instance_profile = "${var.iam_instance_profile_id}"
   instance_type = "${var.instance_type}"
   subnet_id = "${element(var.subnet_ids, count.index)}"
