@@ -33,7 +33,7 @@ resource "aws_security_group" "deployer" {
 }
 
 resource "aws_instance" "deployer" {
-    ami = "${module.ami.ami_id}"
+    ami = "${var.ami_id ? var.ami_id : module.ami.ami_id}"
     
     instance_type = "${var.instance_type}"
     iam_instance_profile = "${var.iam_instance_profile_id}"

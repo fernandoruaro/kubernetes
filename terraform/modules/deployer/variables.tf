@@ -35,3 +35,7 @@ variable "region" {
 variable "cluster_name" {
  default = ""
 }
+
+variable "ami_id" {
+ default = ""
+}

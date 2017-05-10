@@ -7,12 +7,7 @@ resource "aws_key_pair" "kubernetes" {
   public_key = "${var.public_key}"
 }
 
-
-
-
 #### VPC ####
-
-
 resource "aws_vpc" "kubernetes" {
   cidr_block = "${var.vpc_cidr}"
   enable_dns_hostnames = true
@@ -20,7 +15,6 @@ resource "aws_vpc" "kubernetes" {
     create_before_destroy = true
   }
 }
-
 
 resource "aws_vpc_peering_connection" "vpc_peering" {
     count="${length(var.existing_vpc_ids)}"
@@ -35,15 +29,12 @@ resource "aws_vpc_peering_connection" "vpc_peering" {
     }
 }
 
-
-
 resource "aws_subnet" "kubernetes" {
   count = "${length(var.availability_zones)}"
   vpc_id = "${aws_vpc.kubernetes.id}"
   cidr_block = "${cidrsubnet(aws_vpc.kubernetes.cidr_block, var.subnet_mask_bytes, count.index)}"
   availability_zone = "${element(var.availability_zones, count.index)}"
 }
-
 
 resource "aws_internet_gateway" "gw" {
   vpc_id = "${aws_vpc.kubernetes.id}"
@@ -67,10 +58,6 @@ resource "aws_route_table_association" "kubernetes" {
   route_table_id = "${aws_route_table.kubernetes.id}"
 }
 
-
-
-
-
 module "etcd" {
     source = "./modules/etcd"
 
@@ -83,8 +70,8 @@ module "etcd" {
     cluster_name = "${var.cluster_name}"
     region = "${var.region}"
     instance_type = "${var.etcd_instance_type}"
+    ami_id = "${var.etcd_ami_id}"
 }
-
 
 resource "aws_security_group" "kubernetes" {
   vpc_id = "${aws_vpc.kubernetes.id}"
@@ -123,17 +110,9 @@ resource "aws_security_group" "kubernetes" {
   }
 }
 
-
-
-
-
-
-
 #######
 # IAM 
 #######
-
-
 resource "aws_iam_role" "kubernetes" {
   name = "tf-kubernetes-${var.cluster_name}"
   assume_role_policy = <<EOF
@@ -185,7 +164,6 @@ resource "aws_iam_role_policy" "kubernetes" {
 EOF
 }
 
-
 resource "aws_iam_role_policy" "secrets_access" {
   name = "tf-secrets-${var.cluster_name}"
   role = "${aws_iam_role.kubernetes.id}"
@@ -211,16 +189,10 @@ resource "aws_iam_role_policy" "secrets_access" {
 EOF
 }
 
-
-
-
-
 resource  "aws_iam_instance_profile" "kubernetes" {
  name = "tf-instance-profile-${var.cluster_name}"
  roles = ["${aws_iam_role.kubernetes.name}"]
 }
-
-
 
 module "master" {
     source = "./modules/master"
@@ -235,6 +207,7 @@ module "master" {
     cluster_name = "${var.cluster_name}"
     region = "${var.region}"
     instance_type = "${var.master_instance_type}"
+    ami_id = "${var.master_ami_id}"
 }
 
 module "deployer" {
@@ -248,10 +221,8 @@ module "deployer" {
     control_cidr = "${var.control_cidr}"
     region = "${var.region}"
     cluster_name = "${var.cluster_name}"
+    ami_id = "${var.deployer_ami_id}"
 }
-
-
-
 
 resource "aws_iam_user" "etcd_backuper" {
   name = "etcd-backuper-${var.cluster_name}"

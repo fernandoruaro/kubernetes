@@ -53,3 +53,6 @@ variable "extra_ebs_size" {
 variable "storage_type" {
  default = "instance-store"
 }
+
+variable "ami_id" {
+}

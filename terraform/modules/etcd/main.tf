@@ -9,7 +9,7 @@ module "ami" {
 
 resource "aws_instance" "etcd" {
     count = "${var.servers}"
-    ami = "${module.ami.ami_id}"
+    ami = "${var.ami_id ? var.ami_id : module.ami.ami_id}"
     instance_type = "${var.instance_type}"
     subnet_id = "${element(var.subnet_ids, count.index)}"
     associate_public_ip_address = true
