@@ -50,8 +50,8 @@ sudo chmod 757 -R /etc/ansible/
 ```shell
 mkdir terraform
 cd terraform/
-wget https://releases.hashicorp.com/terraform/0.8.6/terraform_0.8.6_linux_amd64.zip
-unzip terraform_0.8.6_linux_amd64.zip
+wget https://releases.hashicorp.com/terraform/0.9.5/terraform_0.9.5_linux_amd64.zip
+unzip terraform_0.9.5_linux_amd64.zip
 echo "export PATH=$PWD:$PATH" >> ~/.bashrc
 export PATH=$PWD:$PATH
 cd ..
