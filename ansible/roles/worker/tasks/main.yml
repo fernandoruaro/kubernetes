@@ -74,6 +74,12 @@
     - docker-runc
   become: true
 
+
+- stat:
+    path: /etc/systemd/system/docker.service
+  register: dockerservice
+  become: true
+
 - name: Add docker systemd unit
   template:
     src: docker.service.j2
@@ -84,6 +90,8 @@
     - Reload systemd
     - Enable docker service
     - Restart docker service
+  when: dockerservice.stat.islnk is not defined
+
 
 
 ###########
@@ -147,8 +155,6 @@
     src: kubeconfig.j2
     dest: /home/ubuntu/.kube/config
     mode: 0755
-
-
 
 - name: Add kubelet systemd unit
   template:
