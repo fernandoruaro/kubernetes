@@ -138,6 +138,16 @@ apply_config () {
     echo
   fi
 
+  # TODO: See https://github.com/kubernetes/kubernetes/issues/35149.
+  cron_path="${repo_path}/cron"
+  if [[ -d $cron_path ]]; then
+    log_info "Deleting Kubernetes cron for namespace ${enviroment} in ${cron_path}."
+    echo
+    kubectl delete --namespace=$enviroment \
+      --ignore-not-found --recursive --filename $cron_path
+    echo
+  fi
+
   log_info "Applying Kubernetes configuration for namespace ${enviroment} in ${repo_path}."
   echo
   kubectl apply --namespace=$enviroment --recursive --filename $repo_path
