@@ -3,7 +3,7 @@ data "aws_caller_identity" "current" {}
 provider "aws" { region = "${var.region}" }
 
 resource "aws_key_pair" "kubernetes" {
-  key_name = "tf-${var.cluster_name}" 
+  key_name = "tf-${var.cluster_name}"
   public_key = "${var.public_key}"
 }
 
@@ -111,7 +111,7 @@ resource "aws_security_group" "kubernetes" {
 }
 
 #######
-# IAM 
+# IAM
 #######
 resource "aws_iam_role" "kubernetes" {
   name = "tf-kubernetes-${var.cluster_name}"

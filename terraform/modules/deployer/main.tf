@@ -34,7 +34,7 @@ resource "aws_security_group" "deployer" {
 
 resource "aws_instance" "deployer" {
     ami = "${var.ami_id != "" ? var.ami_id : module.ami.ami_id}"
-    
+
     instance_type = "${var.instance_type}"
     iam_instance_profile = "${var.iam_instance_profile_id}"
 
@@ -45,7 +45,7 @@ resource "aws_instance" "deployer" {
     availability_zone = "${var.availability_zone}"
     vpc_security_group_ids = ["${aws_security_group.deployer.id}"]
     key_name = "${var.key_name}"
-    
+
     tags {
       ansible_managed = "yes",
       kubernetes_role = "deployer"

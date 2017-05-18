@@ -1,6 +1,6 @@
-variable "servers" { 
+variable "servers" {
 	description = "Number of master instances (always use odd numbers: 1, 3, 5)"
-	default = 3 
+	default = 3
 }
 
 variable "security_group_id" {

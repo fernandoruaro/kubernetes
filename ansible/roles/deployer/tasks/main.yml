@@ -49,7 +49,7 @@
   become: true
 
 - name: Create .kube folder
-  file: 
+  file:
     path: "/home/ubuntu/.kube"
     owner: ubuntu
     state: directory
@@ -88,10 +88,10 @@
   register: net
   become: true
   become_user: ubuntu
- 
+
 - name: Update routes
   shell: |
-          echo "{{net.stdout}}" | tr " " "\n" |  while read item ; do  
+          echo "{{net.stdout}}" | tr " " "\n" |  while read item ; do
             IP=$(echo $item | cut -d ',' -f 1)
             CIDR=$(echo $item | cut -d ',' -f 2)
             NETWORK_INTERFACE=$(aws ec2 describe-instances --filters "Name=private-ip-address,Values=$IP" --query 'Reservations[0].Instances[0].NetworkInterfaces[0].NetworkInterfaceId' --output text)

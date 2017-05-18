@@ -11,7 +11,7 @@ resource "aws_instance" "controller" {
 
     count = "${var.servers}"
     ami = "${var.ami_id != "" ? var.ami_id : module.ami.ami_id}"
-    
+
     instance_type = "${var.instance_type}"
 
     iam_instance_profile = "${var.iam_instance_profile_id}"
@@ -23,7 +23,7 @@ resource "aws_instance" "controller" {
     availability_zone = "${element(var.azs, count.index)}"
     vpc_security_group_ids = ["${var.security_group_id}"]
     key_name = "${var.key_name}"
-    
+
     tags {
       ansible_managed = "yes",
       kubernetes_role = "controller"

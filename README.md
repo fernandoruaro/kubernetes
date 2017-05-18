@@ -12,20 +12,20 @@ The cluster is separeted in 4 main roles:
 
 **1. etcd**
  - **What?** It's a key-value database used by Kubernetes master.
- - **Implementation:** A set of instances responsible for running etcd servers that peers with each other. These instances are distributed between different AZ's. 
+ - **Implementation:** A set of instances responsible for running etcd servers that peers with each other. These instances are distributed between different AZ's.
 
 **2. master**
  - **What?** The services needed to manage the Kubernetes cluster: API server, controller manager and scheduler.
  - **Implementation:** Multiple instances distributed in differet AZ's that communicates with the etcd cluster.
- 
+
 **3. minion**
  - **What?** Services needed to run pods on the host: Docker, Kube Proxy and Kubelet.
  - **Implementation:** Multiple instances able to communicate with the master and receive the scheduled pods.
- 
+
 **4. deployer**
  - **What?** Way for executing `kubectl` commands in the cluster and setting AWS route table according to the minions ip.
  - **Implementation:** Machine that has credentials to access the master and AWS CLI.
- 
+
 ### Prerequisites
 
 First you will need an AWS instance or AWS credentials that has rights for managing the infrastructure.
@@ -103,7 +103,7 @@ echo public_key=\"$(cat "keys/${KEY_NAME}.pub")\" >> terraform/terraform.tfvars
 ```shell
 cd $PROJECT_PATH/terraform
 export TF_VAR_control_cidr=$(wget -qO- http://ipecho.net/plain)/32
-terraform get 
+terraform get
 terraform plan
 terraform apply
 
@@ -162,7 +162,7 @@ cat > kubernetes-csr.json <<EOF
     "MASTER_PRIVATE_IP_1",
     "MASTER_PRIVATE_IP_2",
     "MASTER_PRIVATE_IP_3",
-    "kubernetes.default.svc" 
+    "kubernetes.default.svc"
   ],
   "key": {
     "algo": "rsa",

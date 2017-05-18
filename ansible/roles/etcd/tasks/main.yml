@@ -12,7 +12,7 @@
     src: "/usr/local/src/etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
     dest: "/usr/local/src/"
     creates: "/usr/local/src/etcd-v{{ etcd_version }}-linux-amd64/etcd"
-  become: true 
+  become: true
 - name: Copy etcd binaries
   copy:
     remote_src: true
