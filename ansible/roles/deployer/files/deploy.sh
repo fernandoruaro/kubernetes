@@ -172,8 +172,6 @@ get_status () {
   log_info "Waiting ${wait} seconds to get pod status."
   sleep $wait
   echo
-  kubectl --namespace=$enviroment describe pods
-  echo
   kubectl --namespace=$enviroment get pods
   echo
 }
