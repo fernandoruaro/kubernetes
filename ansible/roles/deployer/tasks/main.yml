@@ -145,3 +145,13 @@
   with_items:
     - deploy.sh
   become: true
+
+- name: Add .bash_profile
+  copy:
+    src: "{{ item }}"
+    dest: "/home/ubuntu"
+    owner: ubuntu
+    group: ubuntu
+  with_items:
+    - .bash_profile
+  become: true
