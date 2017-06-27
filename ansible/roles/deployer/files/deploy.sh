@@ -49,7 +49,6 @@ clone_repo () {
   branch="deploy-${branch_env}"
   ssh_key="${HOME}/.ssh/github"
   repo_url="git@github.com:${org}/${repo}.git"
-  travis_file="${repo_path}/.travis.yml"
 
   log_info "Adding ssh key ${ssh_key} to ssh-agent."
   eval "$(ssh-agent -s)"
@@ -68,8 +67,8 @@ clone_repo () {
   (cd $repo_path && git --no-pager log -1)
   echo
 
-  log_info "Removing ${travis_file}."
-  rm -rf $travis_file
+  log_info "Removing non-Kubernetes YAML files."
+  rm -rf $repo_path/*.yml
 }
 
 fetch_secrets () {
