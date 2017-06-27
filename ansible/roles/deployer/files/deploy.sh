@@ -67,6 +67,9 @@ clone_repo () {
   (cd $repo_path && git --no-pager log -1)
   echo
 
+  log_info "Removing Kubernetes jobs."
+  rm -rf $repo_path/jobs
+
   log_info "Removing non-Kubernetes YAML files."
   rm -rf $repo_path/*.yml
 }
@@ -156,9 +159,6 @@ apply_config () {
 cleanup () {
   repo_path=$1
   secrets_path=$2
-
-  log_info "Removing ${repo_path}."
-  rm -rf $repo_path
 
   log_info "Removing ${secrets_path}."
   rm -rf $secrets_path
