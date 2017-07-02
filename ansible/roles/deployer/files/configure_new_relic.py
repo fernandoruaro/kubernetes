@@ -14,7 +14,6 @@ config = None
 with open(sys.argv[3]) as data_file:
     config = json.load(data_file)
 
-print json.dumps(config)
 def get_data(url, data):
     data = urllib.urlencode(data)
     headers = {'X-Api-Key': new_relic_api_key}
