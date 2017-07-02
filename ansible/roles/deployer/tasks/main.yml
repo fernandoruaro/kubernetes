@@ -103,7 +103,7 @@
 
 
 
-- name: Copy kube-dns files
+- name: Copy config files
   template:
     src: "{{ item }}.j2"
     dest: "/home/ubuntu/{{ item }}"
@@ -114,6 +114,7 @@
     - kube-dns-rc.yaml
     - secret.yaml
     - etcd-backup-cron.yaml
+    - new_relic_config.json
 
 
 - name: Stop services files
@@ -144,6 +145,17 @@
     mode: u+x
   with_items:
     - deploy.sh
+  become: true
+
+- name: Add new relic config script
+  copy:
+    src: "{{ item }}"
+    dest: "/home/ubuntu"
+    owner: ubuntu
+    group: ubuntu
+    mode: u+x
+  with_items:
+    - configure_new_relic.py
   become: true
 
 - name: Add .bash_profile
