@@ -8,8 +8,8 @@ import fileinput
 if len(sys.argv) < 4:
     print "Usage: %s NEW_RELIC_API_KEY NEW_RELIC_POLICY_ID FILE" % (sys.argv[0])
     sys.exit(1)
-new_relic_api_key=sys.argv[1]
-alert_policy_id = sys.argv[2]
+new_relic_api_key = sys.argv[1]
+alert_policy_id = int(sys.argv[2])
 config = None
 with open(sys.argv[3]) as data_file:
     config = json.load(data_file)
