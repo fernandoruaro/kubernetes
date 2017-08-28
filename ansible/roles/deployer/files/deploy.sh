@@ -162,6 +162,9 @@ cleanup () {
 
   log_info "Removing ${secrets_path}."
   rm -rf $secrets_path
+
+  log_info "Restoring ${repo_path}."
+  (cd $repo_path && git checkout .)
 }
 
 get_status () {
