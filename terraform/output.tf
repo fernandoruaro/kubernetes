@@ -57,3 +57,7 @@ output "vpc_id" {
 output "vpc_dns" {
   value = "${cidrhost(var.vpc_cidr, 2)}"
 }
+
+output "deployer_ip" {
+  value = "${module.deployer.deployer_ip}"
+}
