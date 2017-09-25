@@ -72,6 +72,9 @@ clone_repo () {
 
   log_info "Removing non-Kubernetes YAML files."
   rm -rf $repo_path/*.yml
+
+  log_info "Removing CircleCI files."
+  rm -rf $repo_path/.circleci
 }
 
 fetch_secrets () {
