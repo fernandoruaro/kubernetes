@@ -191,7 +191,7 @@ EOF
 
 resource  "aws_iam_instance_profile" "kubernetes" {
  name = "tf-instance-profile-${var.cluster_name}"
- roles = ["${aws_iam_role.kubernetes.name}"]
+ role = "${aws_iam_role.kubernetes.name}"
 }
 
 module "master" {
