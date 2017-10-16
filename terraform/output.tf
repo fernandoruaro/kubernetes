@@ -11,7 +11,7 @@ output kubernetes_route_table_id {
 }
 
 output kubernetes_role {
-  value = "${aws_iam_role.kubernetes.arn}"
+  value = "${aws_iam_role.kubernetes.name}"
 }
 
 output aws_region {
