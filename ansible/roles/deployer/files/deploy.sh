@@ -26,6 +26,7 @@ main () {
   github_repo=${GITHUB_REPO:-executive_alerts_cluster_config}
   repo_path="${HOME}/deploy/${enviroment}/${github_repo}"
   repo_secrets_path="${repo_path}/secrets"
+  configmaps_path="${repo_path}/configmaps"
 
   log_info "Deploying ${enviroment}."
   clone_repo $branch_env $github_org $github_repo $repo_path
@@ -34,6 +35,7 @@ main () {
   check_secrets $secrets_path $repo_secrets_path
   create_namespace $enviroment
   apply_secrets $enviroment $secrets_path
+  apply_configmaps $enviroment $configmaps_path
   apply_config $enviroment $repo_path
   cleanup $repo_path $secrets_path
 
@@ -129,6 +131,22 @@ apply_secrets () {
       kubectl --namespace=$enviroment delete --ignore-not-found secret {} \; \
     && find * -type d -exec \
       kubectl --namespace=$enviroment create secret generic {} --from-file={} \;)
+}
+
+apply_configmaps () {
+  enviroment=$1
+  configmaps_path=$2
+
+  log_info "Creating all Kubernetes ConfigMaps for namespace ${enviroment} from files in ${configmaps_path}."
+
+  if [[ -d $configmaps_path ]]; then
+    (cd $configmaps_path \
+      && find * -type d -exec \
+        kubectl --namespace=$enviroment delete --ignore-not-found configmap {} \; \
+      && find * -type d -exec \
+        kubectl --namespace=$enviroment create configmap {} --from-file={} \;)
+    rm -rf $configmaps_path
+  fi
 }
 
 apply_config () {
