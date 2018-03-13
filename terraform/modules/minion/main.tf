@@ -40,3 +40,9 @@ resource "aws_volume_attachment" "ebs_att" {
   volume_id = "${element(aws_ebs_volume.ebs.*.id, count.index)}"
   instance_id = "${element(aws_instance.worker.*.id, count.index / var.extra_ebs)}"
 }
+
+resource "aws_eip" "eip" {
+  count = "${var.static_ip ? var.servers : 0}"
+  vpc = false
+  instance = "${element(aws_instance.aws_instance.worker.*.id, count.index)}"
+}
