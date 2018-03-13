@@ -6,46 +6,12 @@ module "ami" {
   storagetype = "${var.storage_type}"
 }
 
-
-#resource "aws_launch_configuration" "default_worker" {
-#    name = "default_worker"
-#    image_id = "ami-d206bdb2" // Unbuntu 16.04 LTS HVM, EBS-SSD
-#    instance_type = "${var.worker_instance_type}"
-#    key_name = "${aws_key_pair.kubernetes.key_name}"
-#    security_groups = ["${aws_security_group.kubernetes.id}"]
-#    associate_public_ip_address = true
-#}
-
-
-#resource "aws_autoscaling_group" "default_worker" {
-#    name = "default_worker"
-#    min_size = "${var.worker_count}"
-#    max_size = "${var.worker_count}"
-#    launch_configuration = "${aws_launch_configuration.default_worker.name}"
-#    vpc_zone_identifier = ["${aws_subnet.kubernetes.*.id}"]
-#    lifecycle {
-#      create_before_destroy = true
-#    }
-#    tag {
-#      key                 = "ansible_managed"
-#      value               = "yes"
-#      propagate_at_launch = true
-#    }
-#    tag {
-#      key                 = "kubernetes_role"
-#      value               = "worker"
-#      propagate_at_launch = true
-#    }
-#}
-
-
 resource "aws_ebs_volume" "ebs" {
   count = "${var.servers * var.extra_ebs}"
   availability_zone = "${element(var.azs, count.index / var.extra_ebs)}"
   type = "${var.extra_ebs_type}"
   size = "${var.extra_ebs_size}"
 }
-
 
 resource "aws_instance" "worker" {
   count = "${var.servers}"
