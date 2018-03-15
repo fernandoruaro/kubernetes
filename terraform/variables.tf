@@ -5,6 +5,7 @@ variable "existing_vpc_ids" { type = "list" }
 variable "master_instance_type" { default="m4.large" }
 variable "etcd_instance_type" { default="m4.large" }
 variable "minion_instance_type" { default="m3.medium" }
+variable "static_ip" { default=false }
 variable "control_cidr" { default="" }
 variable "public_key" {default=""}
 variable "minion_count" { default=2 }
