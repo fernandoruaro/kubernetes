@@ -56,3 +56,7 @@ variable "storage_type" {
 
 variable "ami_id" {
 }
+
+variable "static_ip" {
+  default = false
+}
