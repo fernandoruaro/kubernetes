@@ -43,6 +43,6 @@ resource "aws_volume_attachment" "ebs_att" {
 
 resource "aws_eip" "eip" {
   count = "${var.static_ip ? var.servers : 0}"
-  vpc = false
+  vpc = true
   instance = "${element(aws_instance.worker.*.id, count.index)}"
 }
