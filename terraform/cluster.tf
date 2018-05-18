@@ -232,13 +232,14 @@ resource "aws_iam_user" "etcd_backuper" {
 
 resource "aws_iam_access_key" "etcd_backuper" {
   count   = "${var.etcd_backup_keys}"
-  user    = "${aws_iam_user.etcd_backuper.name}"
+  user    = "${element(aws_iam_user.etcd_backuper.*.name, count.index)}"
 }
 
 resource "aws_iam_policy_attachment" "etcd_admin" {
-    name = "tf-etcd-admin-${var.cluster_name}"
-    users = ["${aws_iam_user.etcd_backuper.name}"]
-    policy_arn = "${aws_iam_policy.etcd_backup.arn}"
+  count = "${var.etcd_backup_keys}"
+  name = "tf-etcd-admin-${var.cluster_name}"
+  users = ["${element(aws_iam_user.etcd_backuper.*.name, count.index)}"]
+  policy_arn = "${aws_iam_policy.etcd_backup.arn}"
 }
 
 resource "aws_iam_policy" "etcd_backup" {
