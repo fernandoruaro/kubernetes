@@ -13,3 +13,4 @@ variable "vpc_cidr" { default = "172.21.0.0/16"}
 variable "etcd_ami_id" {default=""}
 variable "master_ami_id" {default=""}
 variable "deployer_ami_id" {default=""}
+variable "etcd_backup_keys" {default=1}

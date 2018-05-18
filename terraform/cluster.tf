@@ -225,11 +225,13 @@ module "deployer" {
 }
 
 resource "aws_iam_user" "etcd_backuper" {
+  count = "${var.etcd_backup_keys}"
   name = "etcd-backuper-${var.cluster_name}"
   path = "/system/"
 }
 
 resource "aws_iam_access_key" "etcd_backuper" {
+  count   = "${var.etcd_backup_keys}"
   user    = "${aws_iam_user.etcd_backuper.name}"
 }
 
