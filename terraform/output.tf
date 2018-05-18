@@ -23,11 +23,11 @@ output s3_etcd_backup_bucket {
 }
 
 output "etcd_key_id" {
-  value = "${element(aws_iam_access_key.etcd_backuper.*.id, 0)}"
+  value = "${ length(aws_iam_access_key.etcd_backuper.*.id) > 0 ? element(aws_iam_access_key.etcd_backuper.*.id, 0) : ""}"
 }
 
 output "etcd_key_secret" {
-  value = "${element(aws_iam_access_key.etcd_backuper.*.secret, 0)}"
+  value = "${ length(aws_iam_access_key.etcd_backuper.*.secret) > 0 ? element(aws_iam_access_key.etcd_backuper.*.secret, 0) : ""}"
 }
 
 output "cluster_name" {
