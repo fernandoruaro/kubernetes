@@ -36,7 +36,7 @@ main () {
   create_namespace $enviroment
   apply_secrets $enviroment $secrets_path
   apply_configmaps $enviroment $configmaps_path
-  apply_config $enviroment $repo_path
+  apply_config $enviroment "$repo_path/mlabs-oi"
   cleanup $repo_path $secrets_path
 
   log_info "Deployed ${enviroment}."
